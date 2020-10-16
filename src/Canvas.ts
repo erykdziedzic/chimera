@@ -15,19 +15,20 @@ export default class Canvas {
     this.ctx.fillStyle = '#000'
     this.ctx.imageSmoothingEnabled = false
     this.clear()
-    this.drawField()
+    this.draw = this.draw.bind(this)
   }
 
   clear(): void {
+    this.ctx.clearRect(0, 0, this.element.width, this.element.height)
     this.ctx.fillRect(0, 0, this.element.width, this.element.height)
   }
 
-  drawField(): void {
-    for (let i = 0; i < 8; i += 1) {
-      for (let j = 0; j < 8; j += 1) {
-        this.drawSprite(this.game.images.cube, i, j)
-      }
-    }
+  draw(): void {
+    this.ctx.save()
+    this.clear()
+    this.game.createField()
+    this.game.player.draw()
+    window.requestAnimationFrame(this.draw)
   }
 
   drawSprite(img: HTMLImageElement, dx: number, dy: number, dz = 0): void {

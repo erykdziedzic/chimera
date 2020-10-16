@@ -7,5 +7,3 @@ async function render() {
   const game = new Game()
   await game.load()
 }
-
-
