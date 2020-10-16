@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "typeRoots": ["./node_modules/@types", "./custom_typings"],
+  },
+  "include": [
+    "./src/**/*", "custom_typings"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
