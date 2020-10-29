@@ -7,5 +7,6 @@ export default async function loadImage(
     const img = new Image(w, h)
     img.onload = () => resolve(img)
     img.src = src
+    img.draggable = false
   })
 }

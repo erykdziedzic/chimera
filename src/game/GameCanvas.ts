@@ -1,7 +1,7 @@
-import config from './config'
+import config from '../config'
 import Game from './Game'
 
-export default class Canvas {
+export default class GameCanvas {
   element: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   game: Game
@@ -26,7 +26,6 @@ export default class Canvas {
   draw(): void {
     this.ctx.save()
     this.clear()
-    this.game.createField()
     this.game.player.draw()
     window.requestAnimationFrame(this.draw)
   }

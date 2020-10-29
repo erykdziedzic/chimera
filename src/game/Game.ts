@@ -1,22 +1,24 @@
-import Canvas from './Canvas'
-import loadImages, { GameImages } from './loadImages'
+import GameCanvas from './GameCanvas'
+import loadImages, { GameImages } from '../utils/loadImages'
 import Player from './Player'
 
 export default class Game {
-  canvas: Canvas
+  canvas: GameCanvas
   element: HTMLDivElement
   images: GameImages
   player: Player
+  creator: boolean
 
   constructor() {
     this.element = document.createElement('div')
     this.element.id = 'game'
+    this.creator = true
   }
 
   async load(): Promise<void> {
     await this.loadImages()
-    this.createCanvas()
-    // this.createField()
+    this.createGameCanvas()
+    this.createField()
     this.createPlayer()
 
     document.body.appendChild(this.element)
@@ -27,8 +29,8 @@ export default class Game {
     this.player.draw()
   }
 
-  createCanvas(): void {
-    this.canvas = new Canvas(this)
+  createGameCanvas(): void {
+    this.canvas = new GameCanvas(this)
     this.element.innerHTML = ''
     this.element.appendChild(this.canvas.element)
   }

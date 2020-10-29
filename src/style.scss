@@ -11,6 +11,46 @@ body {
   align-items: center;
 }
 
-canvas {
-  // transform: scale(3);
+#picker {
+  position: absolute;
+  top: 100px;
+
+  img {
+    width: 30px;
+    height: 30px;
+    box-sizing: border-box;
+    user-select: none;
+    &:hover {
+      border: 2px solid red;
+    }
+  }
+}
+
+.level {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+  border: 2px solid white;
+  &:hover {
+    background-color: #fff;
+    border: 2px solid yellow;
+  }
+
+  &.filled {
+    background-color: yellow;
+  }
+}
+
+.field {
+  border: 2px solid white;
 }

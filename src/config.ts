@@ -9,14 +9,15 @@ const player = {
 }
 
 const screen = {
-  width: 8 * block.width,
-  height: (8 * block.height) / 2,
+  width: 7 * block.width,
+  height: (7 * block.height) / 2,
 }
 
 const config = {
   screen,
   block,
   player,
+  levelEditor: true,
 }
 
 export default config
