@@ -31,6 +31,7 @@ body {
   display: flex;
   flex-direction: column;
   user-select: none;
+  margin: 8px;
 }
 
 .row {
@@ -53,4 +54,32 @@ body {
 
 .field {
   border: 2px solid white;
+}
+
+#saved {
+  border: 2px solid white;
+  display: flex;
+}
+
+#levelEditors {
+  display: flex;
+}
+
+#levelActions {
+  display: flex;
+  margin: 8px;
+}
+
+.preview {
+  border: 2px solid white;
+  &:hover {
+    border: 2px solid yellow;
+  }
+
+  &.selected {
+    border: 2px solid red;
+    &:hover {
+      border: 2px solid violet;
+    }
+  }
 }

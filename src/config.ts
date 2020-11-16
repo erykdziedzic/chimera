@@ -13,7 +13,14 @@ const screen = {
   height: (7 * block.height) / 2,
 }
 
+const PREVIEW_SCALE = 7
+const preview = {
+  width: screen.width / PREVIEW_SCALE,
+  height: screen.height / PREVIEW_SCALE,
+}
+
 const config = {
+  preview,
   screen,
   block,
   player,

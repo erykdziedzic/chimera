@@ -10,21 +10,64 @@ export default class LevelEditor {
   level: boolean[][][]
   filling: boolean
 
+  saved: {
+    img: string
+    level: boolean[][][]
+  }[]
+
+  map: {
+    img: string
+    level: boolean[][][]
+  }[][]
+
   async load(): Promise<void> {
-    const level0 = Array(MAP_SIZE)
-      .fill(false)
-      .map(() => Array(MAP_SIZE).fill(false))
-    const level1 = Array(MAP_SIZE)
-      .fill(false)
-      .map(() => Array(MAP_SIZE).fill(false))
-    this.level = [level0, level1]
+    const emptyMap = () =>
+      Array(MAP_SIZE)
+        .fill(false)
+        .map(() => Array(MAP_SIZE).fill(false))
+
+    this.level = [emptyMap(), emptyMap()]
+    this.saved = []
 
     this.images = await loadImages()
     const table1 = this.createTable('level_0')
     const table2 = this.createTable('level_1', 1)
+    const levelEditors = document.createElement('div')
+    levelEditors.id = 'levelEditors'
 
-    document.body.append(table1)
-    document.body.append(table2)
+    levelEditors.append(table1)
+    levelEditors.append(table2)
+    document.body.append(levelEditors)
+
+    const levelActions = document.createElement('div')
+    levelActions.id = 'levelActions'
+
+    const saveButton = document.createElement('button')
+    saveButton.textContent = 'Save'
+
+    const saved = document.createElement('div')
+    saved.id = 'saved'
+
+    saveButton.onclick = () => {
+      this.saved.push({
+        img: this.element.toDataURL(),
+        level: this.level,
+      })
+      this.renderSaved(saved)
+    }
+    levelActions.append(saveButton)
+
+    const clear = document.createElement('button')
+    clear.textContent = 'Clear'
+    clear.onclick = () => {
+      this.clear()
+      this.level = [emptyMap(), emptyMap()]
+      this.createTable('level_0')
+      this.createTable('level_1', 1)
+    }
+
+    levelActions.append(clear)
+    document.body.append(levelActions)
 
     this.element = document.createElement('canvas')
     this.element.className = 'field'
@@ -34,12 +77,90 @@ export default class LevelEditor {
     this.ctx.fillStyle = '#000'
     this.ctx.imageSmoothingEnabled = false
 
+    const getEmptyMapLevel = () => ({
+      img: '',
+      level: [emptyMap(), emptyMap()],
+    })
+
+    const map = Array(8)
+      .fill(0)
+      .map(() => Array(8).fill(getEmptyMapLevel()))
+
+    const mapEl = document.createElement('div')
+    mapEl.id = 'map'
+
+    function renderMap(mapEl: HTMLDivElement): HTMLElement {
+      map.forEach((row) => {
+        const rowEl = document.createElement('div')
+        rowEl.className = 'row'
+        row.forEach(({ img }) => {
+          const cellEl = document.createElement('div')
+          cellEl.className = 'preview'
+          cellEl.onclick = () => toggleSelect(cellEl)
+          let preview
+          if (img) {
+            preview = document.createElement('img')
+            preview.src = img
+          } else {
+            preview = document.createElement('div')
+          }
+          preview.style.width = `${config.preview.width}px`
+          preview.style.height = `${config.preview.height}px`
+
+          cellEl.append(preview)
+          rowEl.append(cellEl)
+        })
+
+        mapEl.append(rowEl)
+      })
+      return mapEl
+    }
+
+    function toggleSelect(prev: HTMLElement) {
+      let wasSelected = false
+      if (prev.classList.contains('selected')) wasSelected = true
+      const last = document.querySelectorAll('.preview.selected')
+      last.forEach((preview) => preview.classList.remove('selected'))
+      if (wasSelected) prev.classList.remove('selected')
+      else prev.classList.add('selected')
+    }
+
     document.body.append(this.element)
+    document.body.append(saved)
+
+    document.body.append(renderMap(mapEl))
   }
 
-  clear(): void {
-    this.ctx.clearRect(0, 0, this.element.width, this.element.height)
-    this.ctx.fillRect(0, 0, this.element.width, this.element.height)
+  private renderSaved(saved: HTMLDivElement) {
+    while (saved.hasChildNodes()) {
+      saved.removeChild(saved.lastChild)
+    }
+    this.saved.forEach(({ img }, index) => {
+      const lvl = document.createElement('div')
+      const del = document.createElement('button')
+      del.textContent = 'X'
+      del.onclick = () => {
+        this.saved.splice(index, 1)
+        this.renderSaved(saved)
+      }
+      lvl.append(del)
+
+      const load = document.createElement('button')
+      load.textContent = 'load'
+      load.onclick = () => {} // TODO Load level
+      lvl.append(load)
+
+      const preview = document.createElement('img')
+      preview.src = img
+      preview.style.width = '100px'
+      lvl.append(preview)
+      saved.append(lvl)
+    })
+  }
+
+  clear(ctx = this.ctx): void {
+    ctx.clearRect(0, 0, this.element.width, this.element.height)
+    ctx.fillRect(0, 0, this.element.width, this.element.height)
   }
 
   draw(): void {
@@ -73,15 +194,22 @@ export default class LevelEditor {
     )
   }
 
-  createTable(id: string, level = 0) {
-    const table1Label = document.createElement('h2')
-    table1Label.textContent = id
+  createTable(id: string, level = 0): HTMLElement {
+    const tableLabel = document.createElement('h2')
+    tableLabel.textContent = id
 
-    const table = document.createElement('div')
-    table.id = id
-    table.className = 'level'
+    let table = document.getElementById(id)
+    if (!table) {
+      table = document.createElement('div')
+      table.id = id
+      table.className = 'level'
+    } else {
+      while (table.hasChildNodes()) {
+        table.removeChild(table.lastChild)
+      }
+    }
 
-    table.append(table1Label)
+    table.append(tableLabel)
     table.onmouseleave = () => {
       this.filling = false
     }
