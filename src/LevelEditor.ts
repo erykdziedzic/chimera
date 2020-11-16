@@ -10,15 +10,15 @@ export default class LevelEditor {
   level: boolean[][][]
   filling: boolean
 
-  saved: {
-    img: string
-    level: boolean[][][]
-  }[]
-
   map: {
     img: string
     level: boolean[][][]
   }[][]
+
+  selected: {
+    row: number
+    col: number
+  }
 
   async load(): Promise<void> {
     const emptyMap = () =>
@@ -27,7 +27,6 @@ export default class LevelEditor {
         .map(() => Array(MAP_SIZE).fill(false))
 
     this.level = [emptyMap(), emptyMap()]
-    this.saved = []
 
     this.images = await loadImages()
     const table1 = this.createTable('level_0')
@@ -45,15 +44,14 @@ export default class LevelEditor {
     const saveButton = document.createElement('button')
     saveButton.textContent = 'Save'
 
-    const saved = document.createElement('div')
-    saved.id = 'saved'
-
     saveButton.onclick = () => {
-      this.saved.push({
-        img: this.element.toDataURL(),
-        level: this.level,
-      })
-      this.renderSaved(saved)
+      if (this.selected) {
+        this.map[this.selected.row][this.selected.col] = {
+          img: this.element.toDataURL(),
+          level: this.level,
+        }
+        this.renderMap()
+      }
     }
     levelActions.append(saveButton)
 
@@ -82,39 +80,91 @@ export default class LevelEditor {
       level: [emptyMap(), emptyMap()],
     })
 
-    const map = Array(8)
+    this.map = Array(8)
       .fill(0)
       .map(() => Array(8).fill(getEmptyMapLevel()))
 
-    const mapEl = document.createElement('div')
-    mapEl.id = 'map'
+    document.body.append(this.element)
+    document.body.append(this.renderMap())
+    const downloadAnchor = document.createElement('a')
+    downloadAnchor.id = 'downloadAnchor'
+    downloadAnchor.style.display = 'none'
+    document.body.append(downloadAnchor)
+  }
 
-    function renderMap(mapEl: HTMLDivElement): HTMLElement {
-      map.forEach((row) => {
-        const rowEl = document.createElement('div')
-        rowEl.className = 'row'
-        row.forEach(({ img }) => {
-          const cellEl = document.createElement('div')
-          cellEl.className = 'preview'
-          cellEl.onclick = () => toggleSelect(cellEl)
-          let preview
-          if (img) {
-            preview = document.createElement('img')
-            preview.src = img
-          } else {
-            preview = document.createElement('div')
-          }
-          preview.style.width = `${config.preview.width}px`
-          preview.style.height = `${config.preview.height}px`
-
-          cellEl.append(preview)
-          rowEl.append(cellEl)
-        })
-
-        mapEl.append(rowEl)
-      })
-      return mapEl
+  renderMap(): HTMLElement {
+    let mapEl = document.getElementById('map')
+    if (!mapEl) {
+      mapEl = document.createElement('div')
+      mapEl.id = 'map'
+    } else {
+      while (mapEl.hasChildNodes()) {
+        mapEl.removeChild(mapEl.lastChild)
+      }
     }
+    this.map.forEach((row, rowIndex) => {
+      const rowEl = document.createElement('div')
+      rowEl.className = 'row'
+      row.forEach(({ img, level }, colIndex) => {
+        const cellEl = document.createElement('div')
+        cellEl.className = 'preview'
+        cellEl.onclick = () => {
+          this.selected = { row: rowIndex, col: colIndex }
+          toggleSelect(cellEl)
+          this.clear()
+          this.level = level
+          this.createTable('level_0')
+          this.createTable('level_1', 1)
+          this.draw()
+        }
+        let preview
+        if (img) {
+          preview = document.createElement('img')
+          preview.src = img
+        } else {
+          preview = document.createElement('div')
+        }
+        preview.style.width = `${config.preview.width}px`
+        preview.style.height = `${config.preview.height}px`
+
+        cellEl.append(preview)
+        rowEl.append(cellEl)
+      })
+
+      mapEl.append(rowEl)
+    })
+
+    const saveButton = document.createElement('button')
+    saveButton.textContent = 'Save'
+    saveButton.onclick = () => {
+      const dataStr =
+        'data:text/json;charset=utf-8,' +
+        encodeURIComponent(JSON.stringify(this.map))
+      const dlAnchorElem = document.getElementById('downloadAnchor')
+      dlAnchorElem.setAttribute('href', dataStr)
+      dlAnchorElem.setAttribute('download', 'map.json')
+      dlAnchorElem.click()
+    }
+
+    const loadInput = document.createElement('input')
+    loadInput.style.display = 'none'
+    loadInput.type = 'file'
+    loadInput.accept = 'application/json'
+    const loadButton = document.createElement('button')
+    loadButton.textContent = 'Load'
+    loadButton.onclick = () => {
+      loadInput.click()
+    }
+    loadInput.onchange = async (e: Event) => {
+      const file = await (<HTMLInputElement>e.target).files[0].text()
+      const json = JSON.parse(file)
+      this.map = json
+      this.renderMap()
+    }
+    mapEl.append(loadButton)
+    mapEl.append(saveButton)
+
+    return mapEl
 
     function toggleSelect(prev: HTMLElement) {
       let wasSelected = false
@@ -124,38 +174,6 @@ export default class LevelEditor {
       if (wasSelected) prev.classList.remove('selected')
       else prev.classList.add('selected')
     }
-
-    document.body.append(this.element)
-    document.body.append(saved)
-
-    document.body.append(renderMap(mapEl))
-  }
-
-  private renderSaved(saved: HTMLDivElement) {
-    while (saved.hasChildNodes()) {
-      saved.removeChild(saved.lastChild)
-    }
-    this.saved.forEach(({ img }, index) => {
-      const lvl = document.createElement('div')
-      const del = document.createElement('button')
-      del.textContent = 'X'
-      del.onclick = () => {
-        this.saved.splice(index, 1)
-        this.renderSaved(saved)
-      }
-      lvl.append(del)
-
-      const load = document.createElement('button')
-      load.textContent = 'load'
-      load.onclick = () => {} // TODO Load level
-      lvl.append(load)
-
-      const preview = document.createElement('img')
-      preview.src = img
-      preview.style.width = '100px'
-      lvl.append(preview)
-      saved.append(lvl)
-    })
   }
 
   clear(ctx = this.ctx): void {
@@ -166,8 +184,6 @@ export default class LevelEditor {
   draw(): void {
     this.ctx.save()
     this.clear()
-    console.clear()
-    console.table(this.level[0])
     const drawLevel = (level: number) => {
       this.level[level].forEach((row: boolean[], i: number) =>
         row.forEach((cell, j: number) => {
@@ -221,6 +237,12 @@ export default class LevelEditor {
         const cell = document.createElement('div')
         cell.id = `${i}_${j}`
         cell.className = 'cell'
+        if (this.level[level][i][j]) {
+          cell.classList.add('filled')
+        } else {
+          cell.classList.remove('filled')
+        }
+
         const fill = () => {
           if (this.level[level][i][j]) {
             this.level[level][i][j] = false
