@@ -1,5 +1,5 @@
 import config from '../config'
-import cubePath from '../img/cube.png'
+import cubePath from '../img/corner.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
