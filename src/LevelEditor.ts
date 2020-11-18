@@ -1,5 +1,5 @@
 import config from './config'
-import loadImages, { GameImages } from './utils/loadImages'
+import loadImages, { BlockImages, GameImages } from './utils/loadImages'
 
 const MAP_SIZE = 7
 
@@ -7,12 +7,14 @@ export default class LevelEditor {
   element: HTMLCanvasElement
   images: GameImages
   ctx: CanvasRenderingContext2D
-  level: boolean[][][]
+  level: number[][][]
   filling: boolean
+  block: number
+  blocks: HTMLImageElement[]
 
   map: {
     img: string
-    level: boolean[][][]
+    level: number[][][]
   }[][]
 
   selected: {
@@ -21,14 +23,23 @@ export default class LevelEditor {
   }
 
   async load(): Promise<void> {
+    this.selected = { row: 0, col: 0 }
+    this.images = await loadImages()
     const emptyMap = () =>
       Array(MAP_SIZE)
-        .fill(false)
-        .map(() => Array(MAP_SIZE).fill(false))
+        .fill(-1)
+        .map(() => Array(MAP_SIZE).fill(-1))
 
     this.level = [emptyMap(), emptyMap()]
+    const blockImages = this.images.block
+    this.blocks = Object.keys(blockImages).map(
+      (key: keyof BlockImages) => blockImages[key]
+    )
+    this.block = 0
+    const blocksEl = this.renderBlocksSelect()
 
-    this.images = await loadImages()
+    document.body.append(blocksEl)
+
     const table1 = this.createTable('level_0')
     const table2 = this.createTable('level_1', 1)
     const levelEditors = document.createElement('div')
@@ -92,25 +103,60 @@ export default class LevelEditor {
     document.body.append(downloadAnchor)
   }
 
+  renderBlocksSelect(): HTMLElement {
+    let blocksEl = document.getElementById('blocks')
+    if (!blocksEl) {
+      blocksEl = document.createElement('div')
+      blocksEl.id = 'blocks'
+    } else {
+      emptyElement(blocksEl)
+    }
+    this.blocks.forEach((img, index) => {
+      const preview = document.createElement('img')
+      preview.src = img.src
+      preview.style.width = `${config.block.width}px`
+      preview.style.margin = '8px'
+      preview.className = 'block-preview'
+      if (this.block === index) preview.classList.add('selected')
+      else preview.classList.remove('selected')
+
+      preview.onclick = () => {
+        this.block = index
+        this.renderBlocksSelect()
+      }
+
+      blocksEl.append(preview)
+    })
+    return blocksEl
+  }
+
   renderMap(): HTMLElement {
     let mapEl = document.getElementById('map')
     if (!mapEl) {
       mapEl = document.createElement('div')
       mapEl.id = 'map'
     } else {
-      while (mapEl.hasChildNodes()) {
-        mapEl.removeChild(mapEl.lastChild)
-      }
+      emptyElement(mapEl)
     }
     this.map.forEach((row, rowIndex) => {
       const rowEl = document.createElement('div')
       rowEl.className = 'row'
       row.forEach(({ img, level }, colIndex) => {
+        const toggleSelect = () => {
+          const last = document.querySelector('.preview.selected')
+          if (last) last.classList.remove('selected')
+          if (this.selected.row === rowIndex && this.selected.col === colIndex)
+            cellEl.classList.add('selected')
+          else cellEl.classList.remove('selected')
+        }
+
         const cellEl = document.createElement('div')
         cellEl.className = 'preview'
+        toggleSelect()
+
         cellEl.onclick = () => {
           this.selected = { row: rowIndex, col: colIndex }
-          toggleSelect(cellEl)
+          toggleSelect()
           this.clear()
           this.level = level
           this.createTable('level_0')
@@ -165,15 +211,6 @@ export default class LevelEditor {
     mapEl.append(saveButton)
 
     return mapEl
-
-    function toggleSelect(prev: HTMLElement) {
-      let wasSelected = false
-      if (prev.classList.contains('selected')) wasSelected = true
-      const last = document.querySelectorAll('.preview.selected')
-      last.forEach((preview) => preview.classList.remove('selected'))
-      if (wasSelected) prev.classList.remove('selected')
-      else prev.classList.add('selected')
-    }
   }
 
   clear(ctx = this.ctx): void {
@@ -185,9 +222,10 @@ export default class LevelEditor {
     this.ctx.save()
     this.clear()
     const drawLevel = (level: number) => {
-      this.level[level].forEach((row: boolean[], i: number) =>
+      this.level[level].forEach((row: number[], i: number) =>
         row.forEach((cell, j: number) => {
-          if (cell) this.drawSprite(this.images.cube, j - level, i - level)
+          if (cell >= 0)
+            this.drawSprite(this.blocks[cell], j - level, i - level)
         })
       )
     }
@@ -220,9 +258,7 @@ export default class LevelEditor {
       table.id = id
       table.className = 'level'
     } else {
-      while (table.hasChildNodes()) {
-        table.removeChild(table.lastChild)
-      }
+      emptyElement(table)
     }
 
     table.append(tableLabel)
@@ -237,19 +273,19 @@ export default class LevelEditor {
         const cell = document.createElement('div')
         cell.id = `${i}_${j}`
         cell.className = 'cell'
-        if (this.level[level][i][j]) {
+        if (this.level[level][i][j] >= 0) {
           cell.classList.add('filled')
         } else {
           cell.classList.remove('filled')
         }
 
         const fill = () => {
-          if (this.level[level][i][j]) {
-            this.level[level][i][j] = false
-            cell.classList.remove('filled')
-          } else {
-            this.level[level][i][j] = true
+          if (this.level[level][i][j] !== this.block) {
+            this.level[level][i][j] = this.block
             cell.classList.add('filled')
+          } else {
+            this.level[level][i][j] = -1
+            cell.classList.remove('filled')
           }
           this.draw()
         }
@@ -274,5 +310,11 @@ export default class LevelEditor {
       table.append(row)
     }
     return table
+  }
+}
+
+function emptyElement(el: HTMLElement) {
+  while (el.hasChildNodes()) {
+    el.removeChild(el.lastChild)
   }
 }

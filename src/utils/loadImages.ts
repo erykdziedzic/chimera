@@ -1,5 +1,14 @@
 import config from '../config'
-import cubePath from '../img/corner.png'
+import barrelSrc from '../img/blocks/barrel.png'
+import cornerSrc from '../img/blocks/corner.png'
+import crateSrc from '../img/blocks/crate.png'
+import cubeSrc from '../img/blocks/cube.png'
+import electricSrc from '../img/blocks/electric.png'
+import fenceSrc from '../img/blocks/fence.png'
+import pandoraSrc from '../img/blocks/pandora.png'
+import pillarSrc from '../img/blocks/pillar.png'
+import shelfSrc from '../img/blocks/shelf.png'
+import tableSrc from '../img/blocks/table.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
@@ -22,8 +31,21 @@ async function loadBlockImage(src: string) {
   return await loadImage(src, config.block.width, config.block.height)
 }
 
-export type GameImages = {
+export type BlockImages = {
+  barrel: HTMLImageElement
+  corner: HTMLImageElement
+  crate: HTMLImageElement
   cube: HTMLImageElement
+  electric: HTMLImageElement
+  fence: HTMLImageElement
+  pandora: HTMLImageElement
+  pillar: HTMLImageElement
+  shelf: HTMLImageElement
+  table: HTMLImageElement
+}
+
+export type GameImages = {
+  block: BlockImages
   player: {
     north: HTMLImageElement[]
     east: HTMLImageElement[]
@@ -33,8 +55,31 @@ export type GameImages = {
 }
 
 export default async function loadImages(): Promise<GameImages> {
-  const cube = await loadBlockImage(cubePath)
-  const playerObj = {
+  const barrel = await loadBlockImage(barrelSrc)
+  const corner = await loadBlockImage(cornerSrc)
+  const crate = await loadBlockImage(crateSrc)
+  const cube = await loadBlockImage(cubeSrc)
+  const electric = await loadBlockImage(electricSrc)
+  const fence = await loadBlockImage(fenceSrc)
+  const pandora = await loadBlockImage(pandoraSrc)
+  const pillar = await loadBlockImage(pillarSrc)
+  const shelf = await loadBlockImage(shelfSrc)
+  const table = await loadBlockImage(tableSrc)
+
+  const block = {
+    barrel,
+    corner,
+    crate,
+    cube,
+    electric,
+    fence,
+    pandora,
+    pillar,
+    shelf,
+    table,
+  }
+
+  const player = {
     north: [
       await loadPlayerImage(playerNorth1),
       await loadPlayerImage(playerNorth2),
@@ -56,5 +101,5 @@ export default async function loadImages(): Promise<GameImages> {
       await loadPlayerImage(playerWest3),
     ],
   }
-  return { cube, player: playerObj }
+  return { block, player }
 }
