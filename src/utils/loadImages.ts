@@ -42,6 +42,7 @@ export type BlockImages = {
   pillar: HTMLImageElement
   shelf: HTMLImageElement
   table: HTMLImageElement
+  playerBlock: HTMLImageElement
 }
 
 export type GameImages = {
@@ -65,6 +66,7 @@ export default async function loadImages(): Promise<GameImages> {
   const pillar = await loadBlockImage(pillarSrc)
   const shelf = await loadBlockImage(shelfSrc)
   const table = await loadBlockImage(tableSrc)
+  const playerBlock = await loadPlayerImage(playerNorth2)
 
   const block = {
     barrel,
@@ -77,6 +79,7 @@ export default async function loadImages(): Promise<GameImages> {
     pillar,
     shelf,
     table,
+    playerBlock,
   }
 
   const player = {

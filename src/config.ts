@@ -13,6 +13,14 @@ const screen = {
   height: (7 * block.height) / 2,
 }
 
+const level = {
+  size: 7,
+}
+
+const map = {
+  size: 8,
+}
+
 const PREVIEW_SCALE = 7
 const preview = {
   width: screen.width / PREVIEW_SCALE,
@@ -20,6 +28,8 @@ const preview = {
 }
 
 const config = {
+  level,
+  map,
   preview,
   screen,
   block,
