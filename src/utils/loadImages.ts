@@ -9,6 +9,7 @@ import pandoraSrc from '../img/blocks/pandora.png'
 import pillarSrc from '../img/blocks/pillar.png'
 import shelfSrc from '../img/blocks/shelf.png'
 import tableSrc from '../img/blocks/table.png'
+import radiatorSrc from '../img/blocks/radiator.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
@@ -43,6 +44,7 @@ export type BlockImages = {
   shelf: HTMLImageElement
   table: HTMLImageElement
   playerBlock: HTMLImageElement
+  radiator: HTMLImageElement
 }
 
 export const BlockColors = [
@@ -57,6 +59,7 @@ export const BlockColors = [
   'darkgray',
   'pink',
   'red',
+  'purple',
 ]
 
 export type GameImages = {
@@ -81,6 +84,7 @@ export enum Block {
   shelf,
   table,
   player,
+  radiator,
 }
 
 export default async function loadImages(): Promise<GameImages> {
@@ -95,6 +99,7 @@ export default async function loadImages(): Promise<GameImages> {
   const shelf = await loadBlockImage(shelfSrc)
   const table = await loadBlockImage(tableSrc)
   const playerBlock = await loadPlayerImage(playerNorth2)
+  const radiator = await loadBlockImage(radiatorSrc)
 
   const block = {
     barrel,
@@ -108,6 +113,7 @@ export default async function loadImages(): Promise<GameImages> {
     shelf,
     table,
     playerBlock,
+    radiator,
   }
 
   const player = {
