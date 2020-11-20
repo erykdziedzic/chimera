@@ -17,10 +17,10 @@ export default class MapCell {
     this.element.onclick = () => {
       this.editor.selectedLevel = { row, col }
       this.toggleSelect()
-      this.editor.clear()
+      this.editor.canvas.clear()
       this.editor.editors.table1.render()
       this.editor.editors.table2.render()
-      this.editor.draw()
+      this.editor.canvas.draw()
     }
 
     let preview

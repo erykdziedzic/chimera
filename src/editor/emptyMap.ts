@@ -6,7 +6,9 @@ function emptyField() {
     .map(() => Array(config.level.size).fill(-1))
 }
 
-function emptyLevel() {
+export type LevelPreview = { level: number[][][]; img: string }
+
+export function emptyLevel(): LevelPreview {
   return {
     img: '',
     level: [emptyField(), emptyField()],

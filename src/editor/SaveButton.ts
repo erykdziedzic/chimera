@@ -1,10 +1,10 @@
-import GameMap from './GameMap'
+import { MapTable } from './emptyMap'
 
 export default class SaveButton {
   element: HTMLButtonElement
-  map: GameMap
+  map: MapTable
 
-  constructor(map: GameMap) {
+  constructor(map: MapTable) {
     this.map = map
     this.element = document.createElement('button')
     this.element.textContent = 'Save'

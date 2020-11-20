@@ -1,6 +1,6 @@
 import Game from './Game'
 
-enum Direction {
+export enum Direction {
   east,
   south,
   west,
@@ -32,8 +32,8 @@ export default class Player {
   constructor(game: Game) {
     this.game = game
     this.position = {
-      x: 0,
-      y: 0,
+      x: this.game.level.player.row,
+      y: this.game.level.player.col,
       z: 0,
     }
     this.direction = Direction.east
@@ -61,12 +61,6 @@ export default class Player {
   async draw(): Promise<void> {
     this.game.canvas.clear()
     this.game.createField()
-    this.game.canvas.drawSprite(
-      this.imageSet[this.animation.image],
-      this.position.x,
-      this.position.y,
-      1
-    )
   }
 
   animate(timestamp: DOMHighResTimeStamp): void {
@@ -97,15 +91,41 @@ export default class Player {
   }
 
   move(): void {
+    const { x, y } = this.position
+    const level = this.game.level.level[0]
+    const isWalkable = (block: number) => block < 0 || block === 10
+    const leadsToNextLevel = (block: number) => typeof block === 'undefined'
+    if (Number.isInteger(x) === false || Number.isInteger(y) === false) return
+
     switch (this.direction) {
-      case 0:
-        return this.moveOnAxis('x')
-      case 1:
-        return this.moveOnAxis('y')
-      case 2:
-        return this.moveOnAxis('x', -1)
-      case 3:
-        return this.moveOnAxis('y', -1)
+      case Direction.east:
+        if (isWalkable(level[y][x + 1])) return this.moveOnAxis('x')
+        if (leadsToNextLevel(level[y][x + 1])) {
+          this.game.loadNextLevel(Direction.east)
+          this.moveOnAxis('x')
+        }
+        break
+      case Direction.south:
+        if (isWalkable(level[y + 1][x])) return this.moveOnAxis('y')
+        if (leadsToNextLevel(level[y + 1][x])) {
+          this.game.loadNextLevel(Direction.south)
+          this.moveOnAxis('y')
+        }
+        break
+      case Direction.west:
+        if (isWalkable(level[y][x - 1])) return this.moveOnAxis('x', -1)
+        if (leadsToNextLevel(level[y][x - 1])) {
+          this.game.loadNextLevel(Direction.west)
+          this.moveOnAxis('x', -1)
+        }
+        break
+      case Direction.north:
+        if (isWalkable(level[y - 1][x])) return this.moveOnAxis('y', -1)
+        if (leadsToNextLevel(level[y - 1][x])) {
+          this.game.loadNextLevel(Direction.north)
+          this.moveOnAxis('y', -1)
+        }
+        break
       default:
     }
   }

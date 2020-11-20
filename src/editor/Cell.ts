@@ -1,4 +1,5 @@
 import LevelEditor from '../LevelEditor'
+import { BlockColors } from '../utils/loadImages'
 
 export default class Cell {
   level: number
@@ -15,10 +16,9 @@ export default class Cell {
     this.editor = editor
     this.element = document.createElement('div')
     this.element.className = 'cell'
-    this.currentValue = this.editor.getLevel().level[this.level][this.row][
-      this.col
-    ]
+    this.currentValue = this.editor.getLevel().level[level][row][col]
 
+    this.handleFilled()
     this.element.onmouseover = () => {
       if (this.editor.filling) this.toggleFill()
     }
@@ -40,8 +40,10 @@ export default class Cell {
   handleFilled(): void {
     if (this.currentValue >= 0) {
       this.element.classList.add('filled')
+      this.element.style.backgroundColor = BlockColors[this.currentValue]
     } else {
       this.element.classList.remove('filled')
+      this.element.style.backgroundColor = ''
     }
   }
 
@@ -49,9 +51,12 @@ export default class Cell {
     if (this.currentValue !== this.editor.selectedBlock) {
       this.setValue(this.editor.selectedBlock)
       this.element.classList.add('filled')
+      this.element.style.backgroundColor =
+        BlockColors[this.editor.selectedBlock]
     } else {
       this.setValue(-1)
       this.element.classList.remove('filled')
+      this.element.style.backgroundColor = ''
     }
     this.editor.map.render()
   }

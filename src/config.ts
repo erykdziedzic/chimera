@@ -5,7 +5,7 @@ const block = {
 }
 const player = {
   width: 32 * SCALE,
-  height: 48 * SCALE,
+  height: 32 * SCALE,
 }
 
 const screen = {

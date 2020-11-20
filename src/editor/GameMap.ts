@@ -20,7 +20,7 @@ export default class GameMap {
 
   render(): void {
     emptyElement(this.element)
-    const save = new SaveButton(this)
+    const save = new SaveButton(this.map)
     this.element.append(save.element)
     const load = new LoadButton(this)
     this.element.append(load.element)

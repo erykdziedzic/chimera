@@ -1,9 +1,9 @@
 import BlockSelector from './editor/BlockSelector'
 import Canvas from './editor/Canvas'
 import DownloadAnchor from './editor/DownloadAnchor'
+import { emptyLevel, LevelPreview } from './editor/emptyMap'
 import GameMap from './editor/GameMap'
 import LevelTables from './editor/LevelTables'
-import Table from './editor/Table'
 import loadImages, { BlockImages, GameImages } from './utils/loadImages'
 
 export default class LevelEditor {
@@ -12,11 +12,8 @@ export default class LevelEditor {
   ctx: CanvasRenderingContext2D
   level: number[][][]
   filling: boolean
-  editors: {
-    table1: Table
-    table2: Table
-  }
-
+  editors: LevelTables
+  clipboard: LevelPreview
   map: GameMap
 
   selectedBlock: number
@@ -32,6 +29,7 @@ export default class LevelEditor {
     this.selectedLevel = { row: 0, col: 0 }
     this.blocks = this.getBlocksArray()
     this.selectedBlock = 0
+    this.handleKeys()
 
     const blocksSelector = new BlockSelector(this)
     document.body.append(blocksSelector.element)
@@ -39,14 +37,56 @@ export default class LevelEditor {
     this.map = new GameMap(this)
     document.body.append(this.map.element)
 
-    const levelEditors = new LevelTables(this)
-    document.body.append(levelEditors.element)
+    this.editors = new LevelTables(this)
+    document.body.append(this.editors.element)
 
     this.canvas = new Canvas(this)
     document.body.append(this.canvas.element)
 
     const downloadAnchor = new DownloadAnchor()
     document.body.append(downloadAnchor.element)
+  }
+
+  handleKeys(): void {
+    document.addEventListener('keyup', (event: KeyboardEvent) => {
+      if (event.ctrlKey)
+        switch (event.keyCode) {
+          case 67:
+            this.copyCurrentMap()
+            break // Keyboard.C
+          case 86:
+            this.pasteFromClipboard()
+            break // Keyboard.V
+          case 88:
+            this.cutCurrentMap()
+            break // Keyboard.X
+        }
+    })
+  }
+
+  cutCurrentMap(): void {
+    const { row, col } = this.selectedLevel
+    this.clipboard = JSON.parse(JSON.stringify(this.getLevel()))
+    this.map.map[row][col] = emptyLevel()
+    this.map.render()
+    this.canvas.draw()
+    this.editors.table1.render()
+    this.editors.table2.render()
+  }
+
+  copyCurrentMap(): void {
+    this.clipboard = JSON.parse(JSON.stringify(this.getLevel()))
+  }
+
+  pasteFromClipboard(): void {
+    const { row, col } = this.selectedLevel
+    if (this.clipboard) {
+      this.map.map[row][col] = this.clipboard
+      this.map.render()
+      this.canvas.draw()
+      this.editors.table1.render()
+      this.editors.table2.render()
+    }
   }
 
   getBlocksArray(): HTMLImageElement[] {
@@ -56,7 +96,8 @@ export default class LevelEditor {
   }
 
   getLevel(): { level: number[][][]; img: string } {
-    return this.map.map[this.selectedLevel.row][this.selectedLevel.col]
+    const { row, col } = this.selectedLevel
+    return this.map.map[row][col]
   }
 
   setLevel(level: number, row: number, col: number, value: number): void {

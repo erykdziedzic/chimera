@@ -45,6 +45,20 @@ export type BlockImages = {
   playerBlock: HTMLImageElement
 }
 
+export const BlockColors = [
+  'yellow',
+  'orange',
+  'violet',
+  'grey',
+  'blue',
+  'green',
+  'brown',
+  'lightgray',
+  'darkgray',
+  'pink',
+  'red',
+]
+
 export type GameImages = {
   block: BlockImages
   player: {
@@ -53,6 +67,20 @@ export type GameImages = {
     south: HTMLImageElement[]
     west: HTMLImageElement[]
   }
+}
+
+export enum Block {
+  barrel,
+  corner,
+  crate,
+  cube,
+  electric,
+  fence,
+  pandora,
+  pillar,
+  shelf,
+  table,
+  player,
 }
 
 export default async function loadImages(): Promise<GameImages> {

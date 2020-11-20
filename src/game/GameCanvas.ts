@@ -44,4 +44,27 @@ export default class GameCanvas {
       img.height
     )
   }
+
+  fillText(
+    text: string,
+    dx: number,
+    dy: number,
+    dz = 0,
+    color = 'white'
+  ): void {
+    const PREFIX_X = config.screen.width / 2
+    const PREFIX_Y = config.block.height
+    this.ctx.font = '32px serif'
+
+    this.ctx.fillStyle = color
+    this.ctx.fillText(
+      text,
+      PREFIX_X + ((dx - dy) / 2) * config.block.width - 16,
+      PREFIX_Y +
+        ((dy + dx) / 4) * config.block.height -
+        (dz * config.block.height) / 2 -
+        16
+    )
+    this.ctx.fillStyle = 'black'
+  }
 }

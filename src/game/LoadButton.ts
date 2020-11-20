@@ -1,15 +1,17 @@
-import GameMap from './GameMap'
+// import { map } from '../map'
+import Game from './Game'
 
 export default class LoadButton {
   element: HTMLButtonElement
-  map: GameMap
+  game: Game
 
-  constructor(map: GameMap) {
-    this.map = map
+  constructor(game: Game) {
+    this.game = game
     const input = document.createElement('input')
     input.style.display = 'none'
     input.type = 'file'
     input.accept = 'application/json'
+    // if (map) this.loadMap()
 
     this.element = document.createElement('button')
     this.element.textContent = 'Load'
@@ -20,11 +22,16 @@ export default class LoadButton {
     input.onchange = async (e: Event) => {
       const file = await (<HTMLInputElement>e.target).files[0].text()
       const json = JSON.parse(file)
-      this.map.map = json
-      this.map.render()
-      this.map.editor.canvas.draw()
-      this.map.editor.editors.table1.render()
-      this.map.editor.editors.table2.render()
+      this.game.map = json
+      this.game.findPlayerLevel()
+      this.game.render()
     }
+  }
+
+  loadMap(): void {
+    // console.log(JSON.stringify(map))
+    // this.game.map = map
+    this.game.findPlayerLevel()
+    this.game.render()
   }
 }

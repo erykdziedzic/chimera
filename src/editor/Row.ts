@@ -13,6 +13,7 @@ export default class Row {
     this.element = document.createElement('div')
     this.editor = editor
     this.element.className = 'row'
+
     for (let j = 0; j < config.level.size; j += 1) {
       const cell = new Cell(this.editor, level, row, j)
       this.element.append(cell.element)
