@@ -1,15 +1,26 @@
 import config from '../config'
 import barrelSrc from '../img/blocks/barrel.png'
+import breadSrc from '../img/blocks/bread.png'
 import cornerSrc from '../img/blocks/corner.png'
 import crateSrc from '../img/blocks/crate.png'
 import cubeSrc from '../img/blocks/cube.png'
+import doorSrc from '../img/blocks/door.png'
+import drinkSrc from '../img/blocks/drink.png'
 import electricSrc from '../img/blocks/electric.png'
+import endSrc from '../img/blocks/END.png'
 import fenceSrc from '../img/blocks/fence.png'
+import hourglassSrc from '../img/blocks/hourglass.png'
+import keySrc from '../img/blocks/key.png'
 import pandoraSrc from '../img/blocks/pandora.png'
 import pillarSrc from '../img/blocks/pillar.png'
-import shelfSrc from '../img/blocks/shelf.png'
-import tableSrc from '../img/blocks/table.png'
+import pyramidSrc from '../img/blocks/pyramid.png'
 import radiatorSrc from '../img/blocks/radiator.png'
+import shelfSrc from '../img/blocks/shelf.png'
+import spannerSrc from '../img/blocks/spanner.png'
+import tableSrc from '../img/blocks/table.png'
+import toasterSrc from '../img/blocks/toaster.png'
+import torchSrc from '../img/blocks/torch.png'
+import warheadSrc from '../img/blocks/warhead.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
@@ -45,6 +56,17 @@ export type BlockImages = {
   table: HTMLImageElement
   playerBlock: HTMLImageElement
   radiator: HTMLImageElement
+  bread: HTMLImageElement
+  door: HTMLImageElement
+  drink: HTMLImageElement
+  end: HTMLImageElement
+  hourglass: HTMLImageElement
+  key: HTMLImageElement
+  pyramid: HTMLImageElement
+  spanner: HTMLImageElement
+  toaster: HTMLImageElement
+  torch: HTMLImageElement
+  warhead: HTMLImageElement
 }
 
 export const BlockColors = [
@@ -60,6 +82,17 @@ export const BlockColors = [
   'pink',
   'red',
   'purple',
+  'bisque',
+  'chocolate',
+  'crimson',
+  'darkorange',
+  'goldenrod',
+  'gold',
+  'lightyellow',
+  'silver',
+  'salmon',
+  'sandybrown',
+  'teal',
 ]
 
 export type GameImages = {
@@ -85,6 +118,17 @@ export enum Block {
   table,
   player,
   radiator,
+  bread,
+  door,
+  drink,
+  end,
+  hourglass,
+  key,
+  pyramid,
+  spanner,
+  toaster,
+  torch,
+  warhead,
 }
 
 export default async function loadImages(): Promise<GameImages> {
@@ -100,6 +144,17 @@ export default async function loadImages(): Promise<GameImages> {
   const table = await loadBlockImage(tableSrc)
   const playerBlock = await loadPlayerImage(playerNorth2)
   const radiator = await loadBlockImage(radiatorSrc)
+  const bread = await loadBlockImage(breadSrc)
+  const door = await loadBlockImage(doorSrc)
+  const drink = await loadBlockImage(drinkSrc)
+  const end = await loadBlockImage(endSrc)
+  const hourglass = await loadBlockImage(hourglassSrc)
+  const key = await loadBlockImage(keySrc)
+  const pyramid = await loadBlockImage(pyramidSrc)
+  const spanner = await loadBlockImage(spannerSrc)
+  const toaster = await loadBlockImage(toasterSrc)
+  const torch = await loadBlockImage(torchSrc)
+  const warhead = await loadBlockImage(warheadSrc)
 
   const block = {
     barrel,
@@ -114,6 +169,17 @@ export default async function loadImages(): Promise<GameImages> {
     table,
     playerBlock,
     radiator,
+    bread,
+    door,
+    drink,
+    end,
+    hourglass,
+    key,
+    pyramid,
+    spanner,
+    toaster,
+    torch,
+    warhead,
   }
 
   const player = {
