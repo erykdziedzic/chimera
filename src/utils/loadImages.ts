@@ -21,6 +21,7 @@ import tableSrc from '../img/blocks/table.png'
 import toasterSrc from '../img/blocks/toaster.png'
 import torchSrc from '../img/blocks/torch.png'
 import warheadSrc from '../img/blocks/warhead.png'
+import computerSrc from '../img/blocks/computer.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
@@ -67,6 +68,7 @@ export type BlockImages = {
   toaster: HTMLImageElement
   torch: HTMLImageElement
   warhead: HTMLImageElement
+  computer: HTMLImageElement
 }
 
 export const BlockColors = [
@@ -93,6 +95,7 @@ export const BlockColors = [
   'salmon',
   'sandybrown',
   'teal',
+  'cyan',
 ]
 
 export type GameImages = {
@@ -129,6 +132,7 @@ export enum Block {
   toaster,
   torch,
   warhead,
+  computer,
 }
 
 export default async function loadImages(): Promise<GameImages> {
@@ -155,6 +159,7 @@ export default async function loadImages(): Promise<GameImages> {
   const toaster = await loadBlockImage(toasterSrc)
   const torch = await loadBlockImage(torchSrc)
   const warhead = await loadBlockImage(warheadSrc)
+  const computer = await loadBlockImage(computerSrc)
 
   const block = {
     barrel,
@@ -180,6 +185,7 @@ export default async function loadImages(): Promise<GameImages> {
     toaster,
     torch,
     warhead,
+    computer,
   }
 
   const player = {
