@@ -34,7 +34,7 @@ const config = {
   screen,
   block,
   player,
-  levelEditor: true,
+  levelEditor: false,
 }
 
 export default config

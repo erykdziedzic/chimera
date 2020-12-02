@@ -152,6 +152,9 @@ export default class Game {
 
   loadNextLevel(direction: Direction): void {
     const { row, col } = this.level
+    console.log('LOAD NEXT')
+    console.log(direction)
+
     switch (direction) {
       case Direction.east:
         this.level.col = col + 1
@@ -159,8 +162,9 @@ export default class Game {
         this.player.position.x = 0
         break
       case Direction.south:
-        this.level.col = row - 1
-        this.level.level = this.map[row - 1][col].level
+        this.level.row = row + 1
+        this.level.level = this.map[row + 1][col].level
+        console.log(this.level.level)
         this.player.position.y = 0
         break
       case Direction.west:
@@ -169,8 +173,8 @@ export default class Game {
         this.player.position.x = 7
         break
       case Direction.north:
-        this.level.col = row + 1
-        this.level.level = this.map[row + 1][col].level
+        this.level.row = row - 1
+        this.level.level = this.map[row - 1][col].level
         this.player.position.y = 7
         break
       default:

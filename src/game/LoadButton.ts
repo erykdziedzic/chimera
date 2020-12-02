@@ -1,4 +1,4 @@
-// import { map } from '../map'
+import { map } from '../../map'
 import Game from './Game'
 
 export default class LoadButton {
@@ -11,7 +11,7 @@ export default class LoadButton {
     input.style.display = 'none'
     input.type = 'file'
     input.accept = 'application/json'
-    // if (map) this.loadMap()
+    if (map) this.loadMap()
 
     this.element = document.createElement('button')
     this.element.textContent = 'Load'
@@ -29,8 +29,8 @@ export default class LoadButton {
   }
 
   loadMap(): void {
-    // console.log(JSON.stringify(map))
-    // this.game.map = map
+    console.log(JSON.stringify(map))
+    this.game.map = map
     this.game.findPlayerLevel()
     this.game.render()
   }

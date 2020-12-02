@@ -37,7 +37,7 @@ export default class Player {
       z: 0,
     }
     this.direction = Direction.east
-    this.speed = 2
+    this.speed = 10
     this.imageSet = this.game.images.player.east
     this.animate = this.animate.bind(this)
     this.animation = {
@@ -91,43 +91,34 @@ export default class Player {
   }
 
   move(): void {
+    switch (this.direction) {
+      case Direction.east:
+        return this.walkInDirection('x')
+      case Direction.south: 
+        return this.walkInDirection('y')
+      case Direction.west:
+        return this.walkInDirection('x', -1)
+      case Direction.north: 
+        return this.walkInDirection('y', -1)
+      default:
+    }
+  }
+
+  private walkInDirection(axis: keyof Vector3, value = 1) {
     const { x, y } = this.position
-    const level = this.game.level.level[0]
     const isWalkable = (block: number) => block < 0 || block === 10
     const leadsToNextLevel = (block: number) => typeof block === 'undefined'
     if (Number.isInteger(x) === false || Number.isInteger(y) === false) return
 
-    switch (this.direction) {
-      case Direction.east:
-        if (isWalkable(level[y][x + 1])) return this.moveOnAxis('x')
-        if (leadsToNextLevel(level[y][x + 1])) {
-          this.game.loadNextLevel(Direction.east)
-          this.moveOnAxis('x')
-        }
-        break
-      case Direction.south:
-        if (isWalkable(level[y + 1][x])) return this.moveOnAxis('y')
-        if (leadsToNextLevel(level[y + 1][x])) {
-          this.game.loadNextLevel(Direction.south)
-          this.moveOnAxis('y')
-        }
-        break
-      case Direction.west:
-        if (isWalkable(level[y][x - 1])) return this.moveOnAxis('x', -1)
-        if (leadsToNextLevel(level[y][x - 1])) {
-          this.game.loadNextLevel(Direction.west)
-          this.moveOnAxis('x', -1)
-        }
-        break
-      case Direction.north:
-        if (isWalkable(level[y - 1][x])) return this.moveOnAxis('y', -1)
-        if (leadsToNextLevel(level[y - 1][x])) {
-          this.game.loadNextLevel(Direction.north)
-          this.moveOnAxis('y', -1)
-        }
-        break
-      default:
-    }
+    console.log(axis, value, this.direction)
+
+    const level = this.game.level.level[0]
+        const row = level[y + (axis === 'y' ? value : 0)]
+        const cell = row && row[x + (axis === 'x' ? value : 0)]
+        if (leadsToNextLevel(cell)) {
+          this.game.loadNextLevel(this.direction)
+          this.moveOnAxis(axis, value)
+        } else if (isWalkable(cell)) return this.moveOnAxis(axis, value)
   }
 
   private moveOnAxis(axis: keyof Vector3, value = 1): void {
