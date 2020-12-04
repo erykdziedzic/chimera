@@ -36,6 +36,7 @@ const hud = {
   inventory: {
     width: 32 * SCALE,
     height: 32 * SCALE,
+    top: 153 * SCALE,
     left: 64 * SCALE,
     color: '#431300',
   },
@@ -70,8 +71,21 @@ const gameplay = {
   water: 9000,
   food: 5000,
   score: 0,
-  bread: 1500,
-  starvePerSec: 2,
+  breadBonus: 1500,
+  drinkBonus: 1500,
+  foodSpeed: 2,
+  foodSpeedCarrying: 5,
+  waterSpeed: 2,
+  waterSpeedRadiator: 50,
+  audioVolume: 1,
+  value: {
+    drinkPickup: 15,
+    drinkUse: 5,
+    breadPickup: 10,
+    breadUse: 5,
+    spannerPickup: 75,
+    computer: 5,
+  },
 }
 
 const config = {

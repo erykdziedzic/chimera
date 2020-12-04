@@ -12,7 +12,6 @@ export default class Game {
   images: GameImages
   blocks: HTMLImageElement[]
   player: Player
-  creator: boolean
   map: MapTable
   level: {
     row: number
@@ -27,7 +26,13 @@ export default class Game {
   constructor() {
     this.element = document.createElement('div')
     this.element.id = 'game'
-    this.creator = true
+  }
+
+  async reload(): Promise<void> {
+    document.body.innerHTML = ''
+    this.element = document.createElement('div')
+    this.element.id = 'game'
+    this.load()
   }
 
   async load(): Promise<void> {
@@ -38,8 +43,9 @@ export default class Game {
     document.body.append(loadButton.element)
 
     document.body.appendChild(this.element)
-    setInterval(() => sounds.ping.play(), 1000)
-    setInterval(() => this.player.starve(), 1000 / config.gameplay.starvePerSec)
+    this.player.resetIntervals()
+
+    this.canvas.draw()
     // TODO: ping
   }
 
@@ -180,7 +186,15 @@ export default class Game {
         break
       default:
     }
+    this.player.resetIntervals()
     this.canvas.clear()
     this.createField()
+  }
+
+  levelHasRadiator(): boolean {
+    const level = this.level.level[0]
+    const row = level.findIndex((row) => row.includes(Block.radiator))
+    if (row >= 0) return true
+    return false
   }
 }

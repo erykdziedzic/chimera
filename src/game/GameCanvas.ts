@@ -27,7 +27,11 @@ export default class GameCanvas {
   draw(): void {
     this.ctx.save()
     this.clear()
+    // const rotate = Math.floor(Math.random() * 360)
+    const rotate = 90
+    this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
     this.game.player.draw()
+    this.ctx.filter = 'none'
     this.drawHUD()
     window.requestAnimationFrame(this.draw)
   }
@@ -60,24 +64,24 @@ export default class GameCanvas {
     // margin
     posY += 8 * 3
     // inventory
-    this.ctx.fillStyle = hud.inventory.color
-    this.ctx.fillRect(
-      hud.inventory.left,
-      posY,
-      hud.inventory.width,
-      hud.inventory.height
-    )
     switch (this.game.player.inventory) {
       case Item.bread:
-        this.ctx.drawImage(
-          this.game.images.block.bread,
+        this.drawInventory(this.game.images.block.bread)
+        break
+      case Item.drink:
+        this.drawInventory(this.game.images.block.drink)
+        break
+      case Item.spanner:
+        this.drawInventory(this.game.images.block.spanner)
+        break
+      default:
+        this.ctx.fillStyle = hud.inventory.color
+        this.ctx.fillRect(
           hud.inventory.left,
           posY,
           hud.inventory.width,
           hud.inventory.height
         )
-        break
-      default:
     }
     this.ctx.fillStyle = 'black'
     // symbol
@@ -100,26 +104,38 @@ export default class GameCanvas {
     posY += hud.inventory.height
   }
 
+  drawInventory(image: HTMLImageElement): void {
+    const { inventory } = config.hud
+    this.ctx.drawImage(
+      image,
+      inventory.left,
+      inventory.top,
+      inventory.width,
+      inventory.height
+    )
+  }
+
   drawNumber(num: number, left: number, top: number): void {
     const { digits } = this.game.images
     const { width, height } = config.hud.digit
     const draw = (image: HTMLImageElement, deltaX: number) =>
       this.ctx.drawImage(image, left + deltaX * (width + 3), top, width, height)
     let str = num.toString()
+    let pos = 0
     if (num < 10) str = `0${str}`
     if (num < 100) str = `0${str}`
     if (num < 1000) str = `0${str}`
-    draw(digits[Number(str[0])], 0)
-    draw(digits[Number(str[1])], 1)
-    draw(digits[Number(str[2])], 2)
-    draw(digits[Number(str[3])], 3)
+    if (num >= 10000) pos = -1
+    draw(digits[Number(str[0])], pos)
+    draw(digits[Number(str[1])], pos + 1)
+    draw(digits[Number(str[2])], pos + 2)
+    draw(digits[Number(str[3])], pos + 3)
+    if (num >= 10000) draw(digits[Number(str[4])], pos + 4)
   }
 
   drawSprite(img: HTMLImageElement, dx: number, dy: number, dz = 0): void {
     const PREFIX_X = config.screen.width / 2 - img.width / 2
     const PREFIX_Y = config.block.height - img.height
-    const rotate = Math.floor(Math.random() * 360)
-    this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
     this.ctx.drawImage(
       img,
       PREFIX_X + ((dx - dy) / 2) * config.block.width,
@@ -129,8 +145,6 @@ export default class GameCanvas {
       img.width,
       img.height
     )
-    this.ctx.filter = 'none'
-    this.drawHUD()
   }
 
   fillText(

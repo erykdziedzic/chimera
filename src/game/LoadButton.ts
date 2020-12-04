@@ -18,6 +18,7 @@ export default class LoadButton {
     this.element.onclick = () => {
       input.click()
     }
+    if (map) this.element.style.display = 'none'
 
     input.onchange = async (e: Event) => {
       const file = await (<HTMLInputElement>e.target).files[0].text()
