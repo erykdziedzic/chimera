@@ -1,3 +1,4 @@
+import config from '../config'
 import { Block } from '../utils/loadImages'
 import Game from './Game'
 import sounds from './sounds'
@@ -23,6 +24,11 @@ type Animation = {
   end: Vector3
 }
 
+export enum Item {
+  empty,
+  bread,
+}
+
 export default class Player {
   position: Vector3
   direction: Direction
@@ -30,8 +36,17 @@ export default class Player {
   imageSet: HTMLImageElement[]
   speed: number
   animation: Animation
+  inventory: Item
+  stats: {
+    water: number
+    food: number
+    score: number
+  }
 
   constructor(game: Game) {
+    this.inventory = Item.empty
+    const { water, food, score } = config.gameplay
+    this.stats = { water, food, score }
     this.game = game
     this.position = {
       x: this.game.level.player.row,
@@ -99,13 +114,13 @@ export default class Player {
   getAxisAndValue(): [keyof Vector3, number] {
     let axis: keyof Vector3
     let value
-    
+
     switch (this.direction) {
       case Direction.east:
-        axis = "x"
+        axis = 'x'
         value = 1
         break
-      case Direction.south: 
+      case Direction.south:
         axis = 'y'
         value = 1
         break
@@ -113,7 +128,7 @@ export default class Player {
         axis = 'x'
         value = -1
         break
-      case Direction.north: 
+      case Direction.north:
         axis = 'y'
         value = -1
         break
@@ -122,10 +137,13 @@ export default class Player {
     return [axis, value]
   }
 
-  getNextCellPosition(): { x: number, y: number } {
-    const [axis,value] = this.getAxisAndValue()
+  getNextCellPosition(): { x: number; y: number } {
+    const [axis, value] = this.getAxisAndValue()
     const { x, y } = this.position
-    return { x: x + (axis === 'x' ? value : 0), y:y + (axis === 'y' ? value : 0)}
+    return {
+      x: x + (axis === 'x' ? value : 0),
+      y: y + (axis === 'y' ? value : 0),
+    }
   }
 
   private getNextCell() {
@@ -195,9 +213,9 @@ export default class Player {
         case 'ArrowUp':
           return this.move()
         case ' ':
-          return this.useBlock()
+          return this.use()
         case 'Enter':
-          return this.useBlock()
+          return this.use()
         default:
       }
     }
@@ -225,12 +243,26 @@ export default class Player {
   private destroyNextCell(): void {
     const { x, y } = this.getNextCellPosition()
     this.game.level.level[0][y][x] = -1
+    sounds.collect.play()
+  }
+
+  private use(): void {
+    if (this.inventory !== Item.empty) return this.useInventory()
+    else this.useBlock()
+  }
+
+  private useInventory(): void {
+    switch (this.inventory) {
+      case Item.bread:
+        return this.eatBread()
+      default:
+    }
   }
 
   private useBlock() {
     const cell = this.getNextCell()
 
-    switch(cell) {
+    switch (cell) {
       case Block.computer:
         this.destroyNextCell()
         break
@@ -239,9 +271,22 @@ export default class Player {
         break
       case Block.bread:
         this.destroyNextCell()
+        this.inventory = Item.bread
         break
       default:
     }
     this.draw()
+  }
+
+  private eatBread(): void {
+    this.stats.food += config.gameplay.bread
+    this.inventory = Item.empty
+    sounds.collect.play()
+    this.game.canvas.draw()
+  }
+
+  starve(): void {
+    this.stats.food -= 1
+    this.stats.water -= 1
   }
 }

@@ -4,6 +4,7 @@ import Player, { Direction } from './Player'
 import { MapTable } from '../editor/emptyMap'
 import LoadButton from './LoadButton'
 import sounds from './sounds'
+import config from '../config'
 
 export default class Game {
   canvas: GameCanvas
@@ -37,7 +38,8 @@ export default class Game {
     document.body.append(loadButton.element)
 
     document.body.appendChild(this.element)
-    // setInterval(() => sounds.ping.play(), 1000)
+    setInterval(() => sounds.ping.play(), 1000)
+    setInterval(() => this.player.starve(), 1000 / config.gameplay.starvePerSec)
     // TODO: ping
   }
 

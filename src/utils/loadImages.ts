@@ -222,9 +222,21 @@ export default async function loadImages(): Promise<GameImages> {
     ],
   }
   const hud = {
-    stats: await loadImage(statsSrc, config.hud.stats.width, config.hud.stats.height),
-    symbol:  await loadImage(symbolSrc, config.hud.symbol.width, config.hud.symbol.height),
-    life:  await loadImage(lifeSrc, config.hud.life.width, config.hud.life.height),
+    stats: await loadImage(
+      statsSrc,
+      config.hud.stats.width,
+      config.hud.stats.height
+    ),
+    symbol: await loadImage(
+      symbolSrc,
+      config.hud.symbol.width,
+      config.hud.symbol.height
+    ),
+    life: await loadImage(
+      lifeSrc,
+      config.hud.life.width,
+      config.hud.life.height
+    ),
   }
 
   return { block, player, hud, digits: await loadDigits() }

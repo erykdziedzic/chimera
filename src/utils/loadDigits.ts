@@ -13,21 +13,20 @@ import config from '../config'
 import loadImage from './loadImage'
 
 async function loadDigit(src: string) {
-    return await loadImage(src, config.hud.digit.width, config.hud.digit.height)
+  return await loadImage(src, config.hud.digit.width, config.hud.digit.height)
 }
 
-
 export default async function loadDigits(): Promise<HTMLImageElement[]> {
-    return [
-        await loadDigit(zeroSrc),
-        await loadDigit(oneSrc),
-        await loadDigit(twoSrc),
-        await loadDigit(threeSrc),
-        await loadDigit(fourSrc),
-        await loadDigit(fiveSrc),
-        await loadDigit(sixSrc),
-        await loadDigit(sevenSrc),
-        await loadDigit(eightSrc),
-        await loadDigit(nineSrc),
-    ]
+  return [
+    await loadDigit(zeroSrc),
+    await loadDigit(oneSrc),
+    await loadDigit(twoSrc),
+    await loadDigit(threeSrc),
+    await loadDigit(fourSrc),
+    await loadDigit(fiveSrc),
+    await loadDigit(sixSrc),
+    await loadDigit(sevenSrc),
+    await loadDigit(eightSrc),
+    await loadDigit(nineSrc),
+  ]
 }

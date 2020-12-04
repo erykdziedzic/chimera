@@ -1,5 +1,6 @@
 import config from '../config'
 import Game from './Game'
+import { Item } from './Player'
 
 export default class GameCanvas {
   element: HTMLCanvasElement
@@ -27,13 +28,12 @@ export default class GameCanvas {
     this.ctx.save()
     this.clear()
     this.game.player.draw()
+    this.drawHUD()
     window.requestAnimationFrame(this.draw)
   }
 
   drawHUD(): void {
-    const water = 9000
-    const food = 5000
-    const score = 0
+    const { water, food, score } = this.game.player.stats
     const { hud } = config
     const hudImg = this.game.images.hud
 
@@ -61,12 +61,41 @@ export default class GameCanvas {
     posY += 8 * 3
     // inventory
     this.ctx.fillStyle = hud.inventory.color
-    this.ctx.fillRect(hud.inventory.left, posY, hud.inventory.width, hud.inventory.height)
+    this.ctx.fillRect(
+      hud.inventory.left,
+      posY,
+      hud.inventory.width,
+      hud.inventory.height
+    )
+    switch (this.game.player.inventory) {
+      case Item.bread:
+        this.ctx.drawImage(
+          this.game.images.block.bread,
+          hud.inventory.left,
+          posY,
+          hud.inventory.width,
+          hud.inventory.height
+        )
+        break
+      default:
+    }
     this.ctx.fillStyle = 'black'
     // symbol
-    this.ctx.drawImage(hudImg.symbol, hud.symbol.left, posY, hud.symbol.width, hud.symbol.height)
+    this.ctx.drawImage(
+      hudImg.symbol,
+      hud.symbol.left,
+      posY,
+      hud.symbol.width,
+      hud.symbol.height
+    )
     // life
-    this.ctx.drawImage(hudImg.life, hud.life.left, posY, hud.life.width, hud.life.height)
+    this.ctx.drawImage(
+      hudImg.life,
+      hud.life.left,
+      posY,
+      hud.life.width,
+      hud.life.height
+    )
 
     posY += hud.inventory.height
   }
@@ -74,7 +103,7 @@ export default class GameCanvas {
   drawNumber(num: number, left: number, top: number): void {
     const { digits } = this.game.images
     const { width, height } = config.hud.digit
-    const draw = (image: HTMLImageElement, deltaX: number) => 
+    const draw = (image: HTMLImageElement, deltaX: number) =>
       this.ctx.drawImage(image, left + deltaX * (width + 3), top, width, height)
     let str = num.toString()
     if (num < 10) str = `0${str}`
@@ -100,7 +129,7 @@ export default class GameCanvas {
       img.width,
       img.height
     )
-    this.ctx.filter = "none"
+    this.ctx.filter = 'none'
     this.drawHUD()
   }
 

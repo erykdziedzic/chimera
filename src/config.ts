@@ -66,7 +66,16 @@ const preview = {
   height: screen.height / PREVIEW_SCALE,
 }
 
+const gameplay = {
+  water: 9000,
+  food: 5000,
+  score: 0,
+  bread: 1500,
+  starvePerSec: 2,
+}
+
 const config = {
+  gameplay,
   level,
   map,
   preview,
