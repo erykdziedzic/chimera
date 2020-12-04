@@ -1,7 +1,7 @@
 import config from '../config'
 import { Block } from '../utils/loadImages'
 import Game from './Game'
-import sounds from './sounds'
+import sounds, { AudioPlayer } from './sounds'
 
 export enum Direction {
   east,
@@ -29,6 +29,10 @@ export enum Item {
   bread,
   drink,
   spanner,
+  warhead,
+  pyramid,
+  key,
+  torch,
 }
 
 export default class Player {
@@ -39,6 +43,13 @@ export default class Player {
   speed: number
   animation: Animation
   inventory: Item
+  scheduled: {
+    axis: keyof Vector3
+    value: number
+  }
+
+  keyIsDown: boolean
+
   stats: {
     water: number
     food: number
@@ -49,7 +60,7 @@ export default class Player {
   }
 
   constructor(game: Game) {
-    this.inventory = Item.empty
+    this.inventory = Item.spanner // TODO: remove
     const { water, food, score } = config.gameplay
     this.stats = {
       water,
@@ -65,6 +76,7 @@ export default class Player {
       y: this.game.level.player.col,
       z: 0,
     }
+    this.keyIsDown = false
     this.direction = Direction.east
     this.speed = 10
     this.imageSet = this.game.images.player.east
@@ -84,16 +96,9 @@ export default class Player {
         z: 0,
       },
     }
+    this.scheduled = { axis: undefined, value: undefined }
     document.body.onkeydown = this.handleKeys()
-  }
-
-  async draw(): Promise<void> {
-    this.game.canvas.clear()
-    const rotate = 90
-    this.game.canvas.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
-    this.game.createField()
-    this.game.canvas.ctx.filter = 'none'
-    this.game.canvas.drawHUD()
+    document.body.onkeyup = this.handleOnKeyUp()
   }
 
   animate(timestamp: DOMHighResTimeStamp): void {
@@ -109,18 +114,19 @@ export default class Player {
 
     Object.keys(this.position).forEach((axis: keyof Vector3) => {
       const distance = this.animation.end[axis] - this.animation.start[axis]
-
       this.position[axis] =
         this.animation.start[axis] + distance * (elapsed / animationDuration)
     })
 
     if (elapsed < animationDuration) window.requestAnimationFrame(this.animate)
-    else {
+    else if (this.keyIsDown) {
+      this.animation.running = false
+      this.setDirectionImage()
+      this.move()
+    } else {
       this.animation.running = false
       this.setDirectionImage()
     }
-
-    this.draw()
   }
 
   move(): void {
@@ -171,7 +177,8 @@ export default class Player {
 
   private walkInDirection(axis: keyof Vector3, value = 1) {
     const { x, y } = this.position
-    const isWalkable = (block: number) => block < 0 || block === 10
+    const isWalkable = (block: number) =>
+      block < 0 || block === Block.player || block === Block.end
     const leadsToNextLevel = (block: number) => typeof block === 'undefined'
     if (Number.isInteger(x) === false || Number.isInteger(y) === false) return
 
@@ -189,8 +196,13 @@ export default class Player {
   }
 
   private moveOnAxis(axis: keyof Vector3, value = 1): void {
+    const animationDuration = 1 / this.speed
+    const audioDuration = sounds.walk.audio.duration
+    sounds.walk.audio.playbackRate = audioDuration / animationDuration
     sounds.walk.play()
-    if (this.animation.running) return // TODO if moving
+    if (this.animation.running) {
+      this.scheduled = { axis, value }
+    } // TODO if moving
     this.prepareAnimation()
     this.animation.end[axis] += value
     window.requestAnimationFrame(this.animate)
@@ -219,6 +231,15 @@ export default class Player {
     sounds.turn.play()
   }
 
+  handleOnKeyUp() {
+    return (e: KeyboardEvent): void => {
+      switch (e.key) {
+        case 'ArrowUp':
+          this.keyIsDown = false
+      }
+    }
+  }
+
   handleKeys() {
     return (e: KeyboardEvent): void => {
       switch (e.key) {
@@ -227,6 +248,7 @@ export default class Player {
         case 'ArrowLeft':
           return this.rotateLeft()
         case 'ArrowUp':
+          this.keyIsDown = true
           return this.move()
         case ' ':
           return this.use()
@@ -253,17 +275,16 @@ export default class Player {
         break
       default:
     }
-    this.draw()
   }
 
-  private destroyNextCell(): void {
+  private removeNextCell(sound: AudioPlayer): void {
     const { x, y } = this.getNextCellPosition()
     this.game.level.level[0][y][x] = -1
-    sounds.collect.play()
+    sound.play()
   }
 
   private use(): void {
-    if (this.inventory !== Item.empty) return this.useInventory()
+    if (this.inventory !== Item.empty) this.useInventory()
     else this.useBlock()
   }
 
@@ -276,45 +297,67 @@ export default class Player {
       case Item.spanner:
         return this.useBlock()
       default:
+        sounds.collect.play()
     }
   }
 
   private useBlock() {
     const cell = this.getNextCell()
+    const { destroy, collect, collectWarhead } = sounds
 
     switch (cell) {
       case Block.computer:
-        this.destroyNextCell()
-        this.stats.score += config.gameplay.value.computer
+        this.removeNextCell(collect)
+        this.stats.score += config.gameplay.value.computerDestroy
         break
       case Block.electric:
-        if (this.inventory === Item.spanner) this.destroyNextCell()
+        if (this.inventory === Item.spanner) this.removeNextCell(collect)
         else this.die()
+        this.stats.score += config.gameplay.value.electricDestroy
         break
       case Block.drink:
-        this.destroyNextCell()
-        this.inventory = Item.drink
+        this.removeNextCell(collect)
+        if (this.inventory !== Item.empty) this.useWater()
+        else this.inventory = Item.drink
         this.stats.score += config.gameplay.value.drinkPickup
-        this.resetIntervals()
         break
       case Block.bread:
-        this.destroyNextCell()
+        this.removeNextCell(collect)
         if (this.inventory !== Item.empty) this.useBread()
         else this.inventory = Item.bread
 
         this.stats.score += config.gameplay.value.breadPickup
-        this.resetIntervals()
+        break
+      case Block.toaster:
+        if (this.inventory === Item.bread) this.removeNextCell(destroy)
+        else this.die()
+
+        this.stats.score += config.gameplay.value.toasterDestroy
+        break
+      case Block.radiator:
+        this.die()
+        break
+      case Block.hourglass:
+        if (this.inventory === Item.pyramid) this.removeNextCell(destroy)
+        else this.die()
+
+        this.stats.score += config.gameplay.value.hourglassDestroy
+        break
+      case Block.warhead:
+        this.removeNextCell(collectWarhead)
+        this.inventory = Item.warhead
+
+        this.stats.score += config.gameplay.value.hourglassDestroy
         break
       case Block.spanner:
-        this.destroyNextCell()
+        this.removeNextCell(collect)
         this.inventory = Item.spanner
         this.stats.score += config.gameplay.value.spannerPickup
-        this.resetIntervals()
         break
       default:
         sounds.collect.play()
     }
-    this.draw()
+    this.resetIntervals()
   }
 
   private useWater(): void {

@@ -1,4 +1,5 @@
 import config from '../config'
+import { Level } from '../LevelEditor'
 
 function emptyField() {
   return Array(config.level.size)
@@ -6,7 +7,7 @@ function emptyField() {
     .map(() => Array(config.level.size).fill(-1))
 }
 
-export type LevelPreview = { level: number[][][]; img: string }
+export type LevelPreview = { level: Level; img: string }
 
 export function emptyLevel(): LevelPreview {
   return {
@@ -17,7 +18,7 @@ export function emptyLevel(): LevelPreview {
 
 export type MapTable = {
   img: string
-  level: number[][][]
+  level: Level
 }[][]
 
 export default function emptyMap(): MapTable {

@@ -22,6 +22,7 @@ import toasterSrc from '../img/blocks/toaster.png'
 import torchSrc from '../img/blocks/torch.png'
 import warheadSrc from '../img/blocks/warhead.png'
 import computerSrc from '../img/blocks/computer.png'
+import doorWestSrc from '../img/blocks/door_west.png'
 import playerNorth1 from '../img/player/north_1.png'
 import playerNorth2 from '../img/player/north_2.png'
 import playerNorth3 from '../img/player/north_3.png'
@@ -101,6 +102,7 @@ export const BlockColors = [
   'sandybrown',
   'teal',
   'cyan',
+  'khaki',
 ]
 
 export type GameImages = {
@@ -144,6 +146,7 @@ export enum Block {
   torch,
   warhead,
   computer,
+  doorWest,
 }
 
 export default async function loadImages(): Promise<GameImages> {
@@ -171,6 +174,7 @@ export default async function loadImages(): Promise<GameImages> {
   const torch = await loadBlockImage(torchSrc)
   const warhead = await loadBlockImage(warheadSrc)
   const computer = await loadBlockImage(computerSrc)
+  const doorWest = await loadBlockImage(doorWestSrc)
 
   const block = {
     barrel,
@@ -197,6 +201,7 @@ export default async function loadImages(): Promise<GameImages> {
     torch,
     warhead,
     computer,
+    doorWest,
   }
 
   const player = {

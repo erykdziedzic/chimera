@@ -75,7 +75,7 @@ export default class Game {
         0
       )
     const drawBlock = (cell: number, i: number, j: number, level: number) => {
-      if (cell >= 0 && cell !== Block.player) {
+      if (cell >= 0 && cell !== Block.player && cell !== Block.end) {
         this.canvas.drawSprite(this.blocks[cell], j - level, i - level)
         const onTop = this.level.level[1][i][j]
         if (onTop >= 0 && level === 0) drawBlock(onTop, i, j, 1)
@@ -167,12 +167,12 @@ export default class Game {
       case Direction.east:
         this.level.col = col + 1
         this.level.level = this.map[row][col + 1].level
-        this.player.position.x = 0
+        this.player.position.x = -1
         break
       case Direction.south:
         this.level.row = row + 1
         this.level.level = this.map[row + 1][col].level
-        this.player.position.y = 0
+        this.player.position.y = -1
         break
       case Direction.west:
         this.level.col = col - 1

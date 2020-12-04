@@ -10,9 +10,8 @@ export default class Canvas {
     this.editor = editor
     this.element = document.createElement('canvas')
     this.element.className = 'field'
-    this.element.width = config.screen.width
-    this.element.height = config.screen.height
-
+    this.element.width = config.level.width
+    this.element.height = config.level.height
     this.ctx = this.element.getContext('2d')
     this.ctx.fillStyle = '#000'
     this.ctx.imageSmoothingEnabled = false
@@ -20,7 +19,13 @@ export default class Canvas {
 
   clear(): void {
     this.ctx.clearRect(0, 0, this.element.width, this.element.height)
+    const { row, col } = this.editor.selectedLevel
+    const toFind = JSON.stringify({ row, col })
+    if (config.blueLevels.map((l) => JSON.stringify(l)).includes(toFind)) {
+      this.ctx.fillStyle = '#0c048b'
+    }
     this.ctx.fillRect(0, 0, this.element.width, this.element.height)
+    this.ctx.fillStyle = 'black'
   }
 
   draw(): void {
@@ -36,6 +41,11 @@ export default class Canvas {
     }
     drawLevel(0)
     drawLevel(1)
+    const { row, col } = this.editor.selectedLevel
+    this.ctx.fillStyle = 'white'
+    this.ctx.font = '32px serif'
+    this.ctx.fillText(`row: ${row} col: ${col}`, 16, 32)
+    this.ctx.fillStyle = 'black'
   }
 
   drawSprite(img: HTMLImageElement, dx: number, dy: number, dz = 0): void {

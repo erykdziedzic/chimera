@@ -99,3 +99,22 @@ body {
   }
   height: auto;
 }
+
+#mode-toggle {
+  position: absolute;
+  left: 32px;
+  top: 8px;
+}
+
+#bluetoggle {
+  display: flex;
+}
+
+label[for='blue'] {
+  color: white;
+  font-size: 24px;
+}
+
+#blue {
+  transform: scale(1.5);
+}

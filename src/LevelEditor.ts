@@ -6,11 +6,13 @@ import GameMap from './editor/GameMap'
 import LevelTables from './editor/LevelTables'
 import loadImages, { BlockImages, GameImages } from './utils/loadImages'
 
+export type Level = number[][][]
+
 export default class LevelEditor {
   canvas: Canvas
   images: GameImages
   ctx: CanvasRenderingContext2D
-  level: number[][][]
+  level: Level
   filling: boolean
   editors: LevelTables
   clipboard: LevelPreview
@@ -95,7 +97,7 @@ export default class LevelEditor {
     )
   }
 
-  getLevel(): { level: number[][][]; img: string } {
+  getLevel(): { level: Level; img: string } {
     const { row, col } = this.selectedLevel
     return this.map.map[row][col]
   }

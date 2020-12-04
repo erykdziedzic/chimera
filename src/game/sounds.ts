@@ -7,8 +7,11 @@ require('./sounds/blocked.mp3')
 require('./sounds/ping.mp3')
 require('./sounds/collect.mp3')
 require('./sounds/death.mp3')
+require('./sounds/destroy.mp3')
+require('./sounds/warhead.mp3')
+require('./sounds/warhead_placement.mp3')
 
-class Player {
+export class AudioPlayer {
   src: string
   audio: HTMLAudioElement
   constructor(src: string) {
@@ -17,7 +20,7 @@ class Player {
     this.audio.volume = config.gameplay.audioVolume
   }
 
-  play() {
+  play(): void {
     // this.audio = new Audio(this.src)
     this.audio.pause()
     this.audio.currentTime = 0
@@ -26,10 +29,13 @@ class Player {
 }
 
 export default {
-  walk: new Player('./walk.mp3'),
-  turn: new Player('./turn.mp3'),
-  blocked: new Player('./blocked.mp3'),
-  ping: new Player('./ping.mp3'),
-  collect: new Player('./collect.mp3'),
-  death: new Player('./death.mp3'),
+  walk: new AudioPlayer('./walk.mp3'),
+  turn: new AudioPlayer('./turn.mp3'),
+  blocked: new AudioPlayer('./blocked.mp3'),
+  ping: new AudioPlayer('./ping.mp3'),
+  collect: new AudioPlayer('./collect.mp3'),
+  death: new AudioPlayer('./death.mp3'),
+  destroy: new AudioPlayer('./destroy.mp3'),
+  collectWarhead: new AudioPlayer('./warhead.mp3'),
+  placeWarhead: new AudioPlayer('./warhead_placement.mp3'),
 }

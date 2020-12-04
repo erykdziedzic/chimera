@@ -14,6 +14,14 @@ const level = {
   height: (6.5 * block.height) / 2,
 }
 
+const createLevel = (row: number, col: number) => ({ row, col })
+const blueLevels = [
+  createLevel(3, 5),
+  createLevel(2, 6),
+  createLevel(0, 1),
+  createLevel(2, 1),
+]
+
 const hud = {
   width: level.width,
   height: level.height,
@@ -84,7 +92,10 @@ const gameplay = {
     breadPickup: 10,
     breadUse: 5,
     spannerPickup: 75,
-    computer: 5,
+    computerDestroy: 5,
+    toasterDestroy: 0,
+    hourglassDestroy: 0,
+    electricDestroy: 0,
   },
 }
 
@@ -96,8 +107,9 @@ const config = {
   screen,
   block,
   player,
-  levelEditor: false,
+  levelEditor: true,
   hud,
+  blueLevels,
 }
 
 export default config

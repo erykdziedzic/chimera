@@ -13,7 +13,7 @@ export default class GameCanvas {
     this.element.width = config.screen.width
     this.element.height = config.screen.height
     this.ctx = this.element.getContext('2d')
-    this.ctx.fillStyle = '#000'
+    this.resetFillStyle()
     this.ctx.imageSmoothingEnabled = false
     this.clear()
     this.draw = this.draw.bind(this)
@@ -21,6 +21,7 @@ export default class GameCanvas {
 
   clear(): void {
     this.ctx.clearRect(0, 0, this.element.width, this.element.height)
+    this.resetFillStyle()
     this.ctx.fillRect(0, 0, this.element.width, this.element.height)
   }
 
@@ -30,10 +31,24 @@ export default class GameCanvas {
     // const rotate = Math.floor(Math.random() * 360)
     const rotate = 90
     this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
-    this.game.player.draw()
+    this.game.createField()
     this.ctx.filter = 'none'
     this.drawHUD()
     window.requestAnimationFrame(this.draw)
+  }
+
+  resetFillStyle(): void {
+    if (this.game.level) {
+      const { row, col } = this.game.level
+      const toFind = JSON.stringify({ row, col })
+      if (config.blueLevels.map((l) => JSON.stringify(l)).includes(toFind)) {
+        this.ctx.fillStyle = '#0c048b'
+      } else {
+        this.ctx.fillStyle = 'black'
+      }
+    } else {
+      this.ctx.fillStyle = 'black'
+    }
   }
 
   drawHUD(): void {
@@ -74,6 +89,18 @@ export default class GameCanvas {
       case Item.spanner:
         this.drawInventory(this.game.images.block.spanner)
         break
+      case Item.pyramid:
+        this.drawInventory(this.game.images.block.pyramid)
+        break
+      case Item.key:
+        this.drawInventory(this.game.images.block.key)
+        break
+      case Item.warhead:
+        this.drawInventory(this.game.images.block.warhead)
+        break
+      case Item.torch:
+        this.drawInventory(this.game.images.block.torch)
+        break
       default:
         this.ctx.fillStyle = hud.inventory.color
         this.ctx.fillRect(
@@ -83,7 +110,7 @@ export default class GameCanvas {
           hud.inventory.height
         )
     }
-    this.ctx.fillStyle = 'black'
+    this.resetFillStyle()
     // symbol
     this.ctx.drawImage(
       hudImg.symbol,
@@ -167,6 +194,6 @@ export default class GameCanvas {
         (dz * config.block.height) / 2 -
         16
     )
-    this.ctx.fillStyle = 'black'
+    this.resetFillStyle()
   }
 }
