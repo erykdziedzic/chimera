@@ -34,7 +34,12 @@ import playerSouth3 from '../img/player/south_3.png'
 import playerWest1 from '../img/player/west_1.png'
 import playerWest2 from '../img/player/west_2.png'
 import playerWest3 from '../img/player/west_3.png'
+import statsSrc from '../img/stats.png'
+import symbolSrc from '../img/symbol.png'
+import lifeSrc from '../img/life.png'
+
 import loadImage from './loadImage'
+import loadDigits from './loadDigits'
 
 async function loadPlayerImage(src: string) {
   return await loadImage(src, config.player.width, config.player.height)
@@ -106,6 +111,12 @@ export type GameImages = {
     south: HTMLImageElement[]
     west: HTMLImageElement[]
   }
+  hud: {
+    stats: HTMLImageElement
+    symbol: HTMLImageElement
+    life: HTMLImageElement
+  }
+  digits: HTMLImageElement[]
 }
 
 export enum Block {
@@ -210,5 +221,11 @@ export default async function loadImages(): Promise<GameImages> {
       await loadPlayerImage(playerWest3),
     ],
   }
-  return { block, player }
+  const hud = {
+    stats: await loadImage(statsSrc, config.hud.stats.width, config.hud.stats.height),
+    symbol:  await loadImage(symbolSrc, config.hud.symbol.width, config.hud.symbol.height),
+    life:  await loadImage(lifeSrc, config.hud.life.width, config.hud.life.height),
+  }
+
+  return { block, player, hud, digits: await loadDigits() }
 }

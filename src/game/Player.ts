@@ -1,4 +1,6 @@
+import { Block } from '../utils/loadImages'
 import Game from './Game'
+import sounds from './sounds'
 
 export enum Direction {
   east,
@@ -91,17 +93,46 @@ export default class Player {
   }
 
   move(): void {
+    this.walkInDirection(...this.getAxisAndValue())
+  }
+
+  getAxisAndValue(): [keyof Vector3, number] {
+    let axis: keyof Vector3
+    let value
+    
     switch (this.direction) {
       case Direction.east:
-        return this.walkInDirection('x')
+        axis = "x"
+        value = 1
+        break
       case Direction.south: 
-        return this.walkInDirection('y')
+        axis = 'y'
+        value = 1
+        break
       case Direction.west:
-        return this.walkInDirection('x', -1)
+        axis = 'x'
+        value = -1
+        break
       case Direction.north: 
-        return this.walkInDirection('y', -1)
+        axis = 'y'
+        value = -1
+        break
       default:
     }
+    return [axis, value]
+  }
+
+  getNextCellPosition(): { x: number, y: number } {
+    const [axis,value] = this.getAxisAndValue()
+    const { x, y } = this.position
+    return { x: x + (axis === 'x' ? value : 0), y:y + (axis === 'y' ? value : 0)}
+  }
+
+  private getNextCell() {
+    const { x, y } = this.getNextCellPosition()
+    const level = this.game.level.level[0]
+    const cell = level[y] && level[y][x]
+    return cell
   }
 
   private walkInDirection(axis: keyof Vector3, value = 1) {
@@ -110,18 +141,21 @@ export default class Player {
     const leadsToNextLevel = (block: number) => typeof block === 'undefined'
     if (Number.isInteger(x) === false || Number.isInteger(y) === false) return
 
-    console.log(axis, value, this.direction)
-
     const level = this.game.level.level[0]
-        const row = level[y + (axis === 'y' ? value : 0)]
-        const cell = row && row[x + (axis === 'x' ? value : 0)]
-        if (leadsToNextLevel(cell)) {
-          this.game.loadNextLevel(this.direction)
-          this.moveOnAxis(axis, value)
-        } else if (isWalkable(cell)) return this.moveOnAxis(axis, value)
+    const row = level[y + (axis === 'y' ? value : 0)]
+    const cell = row && row[x + (axis === 'x' ? value : 0)]
+    if (leadsToNextLevel(cell)) {
+      this.game.loadNextLevel(this.direction)
+      this.moveOnAxis(axis, value)
+    } else if (isWalkable(cell)) {
+      return this.moveOnAxis(axis, value)
+    } else {
+      sounds.blocked.play()
+    }
   }
 
   private moveOnAxis(axis: keyof Vector3, value = 1): void {
+    sounds.walk.play()
     if (this.animation.running) return // TODO if moving
     this.prepareAnimation()
     this.animation.end[axis] += value
@@ -140,6 +174,7 @@ export default class Player {
     else this.direction = this.direction + 1
     if (this.animation.running) return // TODO if moving
     this.setDirectionImage()
+    sounds.turn.play()
   }
 
   rotateLeft(): void {
@@ -147,6 +182,7 @@ export default class Player {
     else this.direction = this.direction - 1
     if (this.animation.running) return // TODO if moving
     this.setDirectionImage()
+    sounds.turn.play()
   }
 
   handleKeys() {
@@ -158,6 +194,10 @@ export default class Player {
           return this.rotateLeft()
         case 'ArrowUp':
           return this.move()
+        case ' ':
+          return this.useBlock()
+        case 'Enter':
+          return this.useBlock()
         default:
       }
     }
@@ -165,17 +205,40 @@ export default class Player {
 
   private setDirectionImage(): void {
     switch (this.direction) {
-      case 0: // TODO use enum
+      case Direction.east:
         this.imageSet = this.game.images.player.east
         break
-      case 1:
+      case Direction.south:
         this.imageSet = this.game.images.player.south
         break
-      case 2:
+      case Direction.west:
         this.imageSet = this.game.images.player.west
         break
-      case 3:
+      case Direction.north:
         this.imageSet = this.game.images.player.north
+        break
+      default:
+    }
+    this.draw()
+  }
+
+  private destroyNextCell(): void {
+    const { x, y } = this.getNextCellPosition()
+    this.game.level.level[0][y][x] = -1
+  }
+
+  private useBlock() {
+    const cell = this.getNextCell()
+
+    switch(cell) {
+      case Block.computer:
+        this.destroyNextCell()
+        break
+      case Block.electric:
+        this.destroyNextCell()
+        break
+      case Block.bread:
+        this.destroyNextCell()
         break
       default:
     }

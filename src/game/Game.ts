@@ -3,6 +3,7 @@ import loadImages, { Block, BlockImages, GameImages } from '../utils/loadImages'
 import Player, { Direction } from './Player'
 import { MapTable } from '../editor/emptyMap'
 import LoadButton from './LoadButton'
+import sounds from './sounds'
 
 export default class Game {
   canvas: GameCanvas
@@ -36,6 +37,8 @@ export default class Game {
     document.body.append(loadButton.element)
 
     document.body.appendChild(this.element)
+    // setInterval(() => sounds.ping.play(), 1000)
+    // TODO: ping
   }
 
   getBlocksArray(): HTMLImageElement[] {
@@ -116,7 +119,6 @@ export default class Game {
         }
       })
     )
-    // console.table(this.level.level[0])
   }
 
   findPlayerLevel(): void {
@@ -152,8 +154,6 @@ export default class Game {
 
   loadNextLevel(direction: Direction): void {
     const { row, col } = this.level
-    console.log('LOAD NEXT')
-    console.log(direction)
 
     switch (direction) {
       case Direction.east:
@@ -164,7 +164,6 @@ export default class Game {
       case Direction.south:
         this.level.row = row + 1
         this.level.level = this.map[row + 1][col].level
-        console.log(this.level.level)
         this.player.position.y = 0
         break
       case Direction.west:

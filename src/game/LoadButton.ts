@@ -29,7 +29,6 @@ export default class LoadButton {
   }
 
   loadMap(): void {
-    console.log(JSON.stringify(map))
     this.game.map = map
     this.game.findPlayerLevel()
     this.game.render()
