@@ -60,7 +60,7 @@ export default class Player {
   }
 
   constructor(game: Game) {
-    this.inventory = Item.spanner // TODO: remove
+    this.inventory = Item.warhead // TODO: remove
     const { water, food, score } = config.gameplay
     this.stats = {
       water,
@@ -254,9 +254,17 @@ export default class Player {
           return this.use()
         case 'Enter':
           return this.use()
+        case 'f':
+          if (config.debug) return this.nextItem()
+          break
         default:
       }
     }
+  }
+
+  private nextItem(): void {
+    if (this.inventory === 7) this.inventory = Item.empty
+    else this.inventory = this.inventory + 1
   }
 
   private setDirectionImage(): void {
@@ -291,14 +299,31 @@ export default class Player {
   private useInventory(): void {
     switch (this.inventory) {
       case Item.bread:
+        if (this.getNextCell() === Block.toaster) this.useBlock()
         return this.useBread()
       case Item.drink:
         return this.useWater()
       case Item.spanner:
         return this.useBlock()
+      case Item.warhead:
+        return this.useWarhead()
+      case Item.key:
+        return this.useBlock()
+      case Item.pyramid:
+        return this.useBlock()
+      case Item.torch:
+        return this.useTorch()
       default:
         sounds.collect.play()
     }
+  }
+
+  private useTorch() {
+    if (this.game.levelIsDark()) {
+      this.game.darkRoomDone = true
+      this.inventory = Item.empty
+    }
+    this.useBlock()
   }
 
   private useBlock() {
@@ -329,8 +354,10 @@ export default class Player {
         this.stats.score += config.gameplay.value.breadPickup
         break
       case Block.toaster:
-        if (this.inventory === Item.bread) this.removeNextCell(destroy)
-        else this.die()
+        if (this.inventory === Item.bread) {
+          this.removeNextCell(destroy)
+          this.setNextCell(Block.drink)
+        } else this.die()
 
         this.stats.score += config.gameplay.value.toasterDestroy
         break
@@ -340,10 +367,30 @@ export default class Player {
       case Block.hourglass:
         if (this.inventory === Item.pyramid) this.removeNextCell(destroy)
         else this.die()
+        console.log(config.gameplay.value.hourglassDestroy)
 
         this.stats.score += config.gameplay.value.hourglassDestroy
         break
+      case Block.doorWest:
+        console.log(this.inventory)
+        if (this.inventory === Item.key) this.removeNextCell(destroy)
+        else collect.play()
+
+        this.stats.score += config.gameplay.value.doorOpen
+        break
+      case Block.door:
+        if (this.inventory === Item.key) this.removeNextCell(destroy)
+        else collect.play()
+
+        this.stats.score += config.gameplay.value.doorOpen
+        break
+      case Block.key:
+        this.removeNextCell(collect)
+        this.inventory = Item.key
+        this.stats.score += config.gameplay.value.keyPickup
+        break
       case Block.warhead:
+        if (this.game.levelIsBlue()) this.die()
         this.removeNextCell(collectWarhead)
         this.inventory = Item.warhead
 
@@ -353,6 +400,16 @@ export default class Player {
         this.removeNextCell(collect)
         this.inventory = Item.spanner
         this.stats.score += config.gameplay.value.spannerPickup
+        break
+      case Block.pyramid:
+        this.removeNextCell(collect)
+        this.inventory = Item.pyramid
+        this.stats.score += config.gameplay.value.pyramidPickup
+        break
+      case Block.pandora:
+        if (this.inventory === Item.key) this.removeNextCell(destroy)
+        else this.die()
+        this.stats.score += config.gameplay.value.pandoraDestroy
         break
       default:
         sounds.collect.play()
@@ -384,10 +441,12 @@ export default class Player {
 
   starve(): void {
     this.stats.food -= 1
+    if (this.stats.food === 0) this.die()
   }
 
   water(): void {
     this.stats.water -= 1
+    if (this.stats.water === 0) this.die()
   }
 
   resetIntervals(): void {
@@ -429,5 +488,32 @@ export default class Player {
     clearInterval(this.stats.waterInterval)
     sounds.death.play()
     this.game.reload()
+  }
+
+  private useWarhead(): void {
+    const { y: row, x: col } = this.getNextCellPosition()
+    const nextCell = this.getNextCell()
+    const nextCellNotEmpty = nextCell >= 0
+    if (row === 3 && col === 2 && this.game.levelIsBlue()) this.die()
+    if (this.game.levelIsBlue()) return this.placeWarhead()
+    else if (nextCellNotEmpty) return this.useBlock()
+    else sounds.collect.play()
+  }
+
+  private setNextCell(block: Block) {
+    const { y, x } = this.getNextCellPosition()
+    this.game.level.level[0][y][x] = block
+  }
+
+  private placeWarhead(): void {
+    const target = this.game.level.level[0][3][2]
+    if (target === Block.bread) this.useBread()
+    this.game.level.level[0][3][2] = Block.warhead
+    sounds.placeWarhead.play()
+    if (this.inventory === Item.warhead) {
+      this.inventory = Item.empty
+    }
+    this.stats.score += config.gameplay.value.placeWarhead
+    this.game.warheadsPlaced += 1
   }
 }

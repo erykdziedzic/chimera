@@ -33,19 +33,15 @@ export default class GameCanvas {
     this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
     this.game.createField()
     this.ctx.filter = 'none'
+    if (this.game.levelIsDark()) this.clear()
     this.drawHUD()
     window.requestAnimationFrame(this.draw)
   }
 
   resetFillStyle(): void {
     if (this.game.level) {
-      const { row, col } = this.game.level
-      const toFind = JSON.stringify({ row, col })
-      if (config.blueLevels.map((l) => JSON.stringify(l)).includes(toFind)) {
-        this.ctx.fillStyle = '#0c048b'
-      } else {
-        this.ctx.fillStyle = 'black'
-      }
+      if (this.game.levelIsBlue()) this.ctx.fillStyle = '#0c048b'
+      else this.ctx.fillStyle = 'black'
     } else {
       this.ctx.fillStyle = 'black'
     }

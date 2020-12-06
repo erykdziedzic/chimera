@@ -13,6 +13,8 @@ export default class Game {
   blocks: HTMLImageElement[]
   player: Player
   map: MapTable
+  darkRoomDone: boolean
+  warheadsPlaced: number
   level: {
     row: number
     col: number
@@ -26,6 +28,8 @@ export default class Game {
   constructor() {
     this.element = document.createElement('div')
     this.element.id = 'game'
+    this.darkRoomDone = false
+    this.warheadsPlaced = 0
   }
 
   async reload(): Promise<void> {
@@ -189,6 +193,7 @@ export default class Game {
     this.player.resetIntervals()
     this.canvas.clear()
     this.createField()
+    if (this.levelIsEnd() && this.warheadsPlaced === 4) this.end()
   }
 
   levelHasRadiator(): boolean {
@@ -196,5 +201,32 @@ export default class Game {
     const row = level.findIndex((row) => row.includes(Block.radiator))
     if (row >= 0) return true
     return false
+  }
+
+  levelIsBlue(): boolean {
+    const { row, col } = this.level
+    const toFind = JSON.stringify({ row, col })
+    if (config.blueRooms.map((l) => JSON.stringify(l)).includes(toFind))
+      return true
+    return false
+  }
+
+  levelIsDark(): boolean {
+    const { row, col } = this.level
+    const toFind = JSON.stringify({ row, col })
+    if (this.darkRoomDone) return false
+    if (JSON.stringify(config.darkRoom) === toFind) return true
+    return false
+  }
+
+  levelIsEnd(): boolean {
+    const { row, col } = this.level
+    const toFind = JSON.stringify({ row, col })
+    if (JSON.stringify(config.endRoom) === toFind) return true
+    return false
+  }
+
+  end(): void {
+    console.log('CONGRATS MOTHAFUCKA')
   }
 }

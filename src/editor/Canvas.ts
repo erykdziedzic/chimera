@@ -21,7 +21,7 @@ export default class Canvas {
     this.ctx.clearRect(0, 0, this.element.width, this.element.height)
     const { row, col } = this.editor.selectedLevel
     const toFind = JSON.stringify({ row, col })
-    if (config.blueLevels.map((l) => JSON.stringify(l)).includes(toFind)) {
+    if (config.blueRooms.map((l) => JSON.stringify(l)).includes(toFind)) {
       this.ctx.fillStyle = '#0c048b'
     }
     this.ctx.fillRect(0, 0, this.element.width, this.element.height)

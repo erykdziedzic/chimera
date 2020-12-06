@@ -15,12 +15,14 @@ const level = {
 }
 
 const createLevel = (row: number, col: number) => ({ row, col })
-const blueLevels = [
+const blueRooms = [
   createLevel(3, 5),
   createLevel(2, 6),
   createLevel(0, 1),
   createLevel(2, 1),
 ]
+const darkRoom = createLevel(5, 6)
+const endRoom = createLevel(4, 0)
 
 const hud = {
   width: level.width,
@@ -85,17 +87,23 @@ const gameplay = {
   foodSpeedCarrying: 5,
   waterSpeed: 2,
   waterSpeedRadiator: 50,
-  audioVolume: 1,
+  audioVolume: 0.5,
   value: {
     drinkPickup: 15,
     drinkUse: 5,
     breadPickup: 10,
     breadUse: 5,
     spannerPickup: 75,
+    pyramidPickup: 75,
+    keyPickup: 75,
     computerDestroy: 5,
-    toasterDestroy: 0,
-    hourglassDestroy: 0,
-    electricDestroy: 0,
+    toasterDestroy: 25,
+    hourglassDestroy: 25,
+    electricDestroy: 25,
+    pandoraDestroy: 25,
+    placeWarhead: 175,
+    doorOpen: 30,
+    torchPickup: 75,
   },
 }
 
@@ -107,9 +115,12 @@ const config = {
   screen,
   block,
   player,
-  levelEditor: true,
+  levelEditor: false,
   hud,
-  blueLevels,
+  blueRooms,
+  darkRoom,
+  endRoom,
+  debug: true,
 }
 
 export default config
