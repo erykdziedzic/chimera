@@ -227,6 +227,7 @@ export default class Game {
   }
 
   end(): void {
+    this.player.stats.score += config.gameplay.value.end
     console.log('CONGRATS MOTHAFUCKA')
   }
 }

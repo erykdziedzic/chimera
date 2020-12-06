@@ -104,6 +104,7 @@ const gameplay = {
     placeWarhead: 175,
     doorOpen: 30,
     torchPickup: 75,
+    end: 5048,
   },
 }
 

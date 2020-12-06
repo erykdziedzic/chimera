@@ -51,30 +51,31 @@ async function loadBlockImage(src: string) {
 }
 
 export type BlockImages = {
-  barrel: HTMLImageElement
-  corner: HTMLImageElement
-  crate: HTMLImageElement
-  cube: HTMLImageElement
-  electric: HTMLImageElement
-  fence: HTMLImageElement
-  pandora: HTMLImageElement
-  pillar: HTMLImageElement
-  shelf: HTMLImageElement
-  table: HTMLImageElement
-  playerBlock: HTMLImageElement
-  radiator: HTMLImageElement
-  bread: HTMLImageElement
-  door: HTMLImageElement
-  drink: HTMLImageElement
-  end: HTMLImageElement
-  hourglass: HTMLImageElement
-  key: HTMLImageElement
-  pyramid: HTMLImageElement
-  spanner: HTMLImageElement
-  toaster: HTMLImageElement
-  torch: HTMLImageElement
-  warhead: HTMLImageElement
-  computer: HTMLImageElement
+  readonly barrel: HTMLImageElement
+  readonly corner: HTMLImageElement
+  readonly crate: HTMLImageElement
+  readonly cube: HTMLImageElement
+  readonly electric: HTMLImageElement
+  readonly fence: HTMLImageElement
+  readonly pandora: HTMLImageElement
+  readonly pillar: HTMLImageElement
+  readonly shelf: HTMLImageElement
+  readonly table: HTMLImageElement
+  readonly playerBlock: HTMLImageElement
+  readonly radiator: HTMLImageElement
+  readonly bread: HTMLImageElement
+  readonly door: HTMLImageElement
+  readonly drink: HTMLImageElement
+  readonly end: HTMLImageElement
+  readonly hourglass: HTMLImageElement
+  readonly key: HTMLImageElement
+  readonly pyramid: HTMLImageElement
+  readonly spanner: HTMLImageElement
+  readonly toaster: HTMLImageElement
+  readonly torch: HTMLImageElement
+  readonly warhead: HTMLImageElement
+  readonly computer: HTMLImageElement
+  readonly doorWest: HTMLImageElement
 }
 
 export const BlockColors = [
@@ -176,7 +177,7 @@ export default async function loadImages(): Promise<GameImages> {
   const computer = await loadBlockImage(computerSrc)
   const doorWest = await loadBlockImage(doorWestSrc)
 
-  const block = {
+  const block: BlockImages = {
     barrel,
     corner,
     crate,
