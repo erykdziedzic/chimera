@@ -1,4 +1,4 @@
-import config from '../config'
+import config, { SCALE } from '../config'
 import barrelSrc from '../img/blocks/barrel.png'
 import breadSrc from '../img/blocks/bread.png'
 import cornerSrc from '../img/blocks/corner.png'
@@ -38,13 +38,11 @@ import playerWest3 from '../img/player/west_3.png'
 import statsSrc from '../img/stats.png'
 import symbolSrc from '../img/symbol.png'
 import lifeSrc from '../img/life.png'
+import pauseBGSrc from '../img/pause_bg.png'
+import pauseTextSrc from '../img/pause_text.png'
 
-import loadImage from './loadImage'
+import loadImage, { loadScaled } from './loadImage'
 import loadDigits from './loadDigits'
-
-async function loadPlayerImage(src: string) {
-  return await loadImage(src, config.player.width, config.player.height)
-}
 
 async function loadBlockImage(src: string) {
   return await loadImage(src, config.block.width, config.block.height)
@@ -120,6 +118,10 @@ export type GameImages = {
     life: HTMLImageElement
   }
   digits: HTMLImageElement[]
+  pause: {
+    background: HTMLImageElement
+    text: HTMLImageElement
+  }
 }
 
 export enum Block {
@@ -161,7 +163,7 @@ export default async function loadImages(): Promise<GameImages> {
   const pillar = await loadBlockImage(pillarSrc)
   const shelf = await loadBlockImage(shelfSrc)
   const table = await loadBlockImage(tableSrc)
-  const playerBlock = await loadPlayerImage(playerNorth2)
+  const playerBlock = await loadBlockImage(playerNorth2)
   const radiator = await loadBlockImage(radiatorSrc)
   const bread = await loadBlockImage(breadSrc)
   const door = await loadBlockImage(doorSrc)
@@ -207,43 +209,42 @@ export default async function loadImages(): Promise<GameImages> {
 
   const player = {
     north: [
-      await loadPlayerImage(playerNorth1),
-      await loadPlayerImage(playerNorth2),
-      await loadPlayerImage(playerNorth3),
+      await loadBlockImage(playerNorth1),
+      await loadBlockImage(playerNorth2),
+      await loadBlockImage(playerNorth3),
     ],
     east: [
-      await loadPlayerImage(playerEast1),
-      await loadPlayerImage(playerEast2),
-      await loadPlayerImage(playerEast3),
+      await loadBlockImage(playerEast1),
+      await loadBlockImage(playerEast2),
+      await loadBlockImage(playerEast3),
     ],
     south: [
-      await loadPlayerImage(playerSouth1),
-      await loadPlayerImage(playerSouth2),
-      await loadPlayerImage(playerSouth3),
+      await loadBlockImage(playerSouth1),
+      await loadBlockImage(playerSouth2),
+      await loadBlockImage(playerSouth3),
     ],
     west: [
-      await loadPlayerImage(playerWest1),
-      await loadPlayerImage(playerWest2),
-      await loadPlayerImage(playerWest3),
+      await loadBlockImage(playerWest1),
+      await loadBlockImage(playerWest2),
+      await loadBlockImage(playerWest3),
     ],
   }
   const hud = {
-    stats: await loadImage(
-      statsSrc,
-      config.hud.stats.width,
-      config.hud.stats.height
-    ),
-    symbol: await loadImage(
-      symbolSrc,
-      config.hud.symbol.width,
-      config.hud.symbol.height
-    ),
-    life: await loadImage(
-      lifeSrc,
-      config.hud.life.width,
-      config.hud.life.height
-    ),
+    stats: await loadScaled(statsSrc),
+    symbol: await loadScaled(symbolSrc),
+    life: await loadScaled(lifeSrc),
   }
 
-  return { block, player, hud, digits: await loadDigits() }
+  const gameImages: GameImages = {
+    block,
+    player,
+    hud,
+    digits: await loadDigits(),
+    pause: {
+      background: await loadScaled(pauseBGSrc),
+      text: await loadScaled(pauseTextSrc),
+    },
+  }
+
+  return gameImages
 }

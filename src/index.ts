@@ -7,6 +7,23 @@ render()
 
 function render() {
   document.body.innerHTML = ''
+  // createToggleButton()
+
+  if (config.levelEditor) loadMapCreator()
+  else loadGame()
+}
+
+async function loadGame() {
+  const game = new Game()
+  await game.firstLoad()
+}
+
+async function loadMapCreator() {
+  const editor = new LevelEditor()
+  await editor.load()
+}
+
+function createToggleButton() {
   const mode = document.createElement('button')
   mode.innerText = 'Toggle Mode'
   mode.id = 'mode-toggle'
@@ -15,17 +32,4 @@ function render() {
     render()
   }
   document.body.appendChild(mode)
-
-  if (config.levelEditor) loadMapCreator()
-  else loadGame()
-}
-
-async function loadGame() {
-  const game = new Game()
-  await game.load()
-}
-
-async function loadMapCreator() {
-  const editor = new LevelEditor()
-  await editor.load()
 }

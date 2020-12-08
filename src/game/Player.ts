@@ -257,6 +257,10 @@ export default class Player {
         case 'f':
           if (config.debug) return this.nextItem()
           break
+        case 'Escape':
+          if (this.game.paused) this.game.resume()
+          else this.game.pause()
+          break
         default:
       }
     }

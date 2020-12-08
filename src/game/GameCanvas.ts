@@ -1,4 +1,4 @@
-import config from '../config'
+import config, { SCALE } from '../config'
 import Game from './Game'
 import { Item } from './Player'
 
@@ -35,6 +35,7 @@ export default class GameCanvas {
     this.ctx.filter = 'none'
     if (this.game.levelIsDark()) this.clear()
     this.drawHUD()
+    if (this.game.paused) this.drawPauseMenu()
     window.requestAnimationFrame(this.draw)
   }
 
@@ -45,6 +46,10 @@ export default class GameCanvas {
     } else {
       this.ctx.fillStyle = 'black'
     }
+  }
+
+  drawHUDImage(img: HTMLImageElement, x: number, y: number): void {
+    this.ctx.drawImage(img, x, y, img.width, img.height)
   }
 
   drawHUD(): void {
@@ -63,8 +68,8 @@ export default class GameCanvas {
     // margin
     posY += 8 * 3
     // titles
-    this.ctx.drawImage(hudImg.stats, 0, posY, hud.stats.width, hud.stats.height)
-    posY += hud.stats.height
+    this.drawHUDImage(hudImg.stats, 0, posY)
+    posY += hudImg.stats.height
     // margin
     posY += 2 * 3
     // digits
@@ -107,24 +112,9 @@ export default class GameCanvas {
         )
     }
     this.resetFillStyle()
-    // symbol
-    this.ctx.drawImage(
-      hudImg.symbol,
-      hud.symbol.left,
-      posY,
-      hud.symbol.width,
-      hud.symbol.height
-    )
-    // life
-    this.ctx.drawImage(
-      hudImg.life,
-      hud.life.left,
-      posY,
-      hud.life.width,
-      hud.life.height
-    )
 
-    posY += hud.inventory.height
+    this.drawHUDImage(hudImg.symbol, hud.symbol.left, posY)
+    this.drawHUDImage(hudImg.life, hud.life.left, posY)
   }
 
   drawInventory(image: HTMLImageElement): void {
@@ -133,8 +123,8 @@ export default class GameCanvas {
       image,
       inventory.left,
       inventory.top,
-      inventory.width,
-      inventory.height
+      image.width,
+      image.height
     )
   }
 
@@ -191,5 +181,12 @@ export default class GameCanvas {
         16
     )
     this.resetFillStyle()
+  }
+
+  drawPauseMenu(): void {
+    this.clear()
+    const { background, text } = this.game.images.pause
+    this.ctx.drawImage(background, 0, 0, background.width, background.height)
+    this.ctx.drawImage(text, 0, 0, text.width, text.height)
   }
 }

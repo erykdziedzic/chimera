@@ -1,9 +1,5 @@
-const SCALE = 3
+export const SCALE = 3
 const block = {
-  width: 32 * SCALE,
-  height: 32 * SCALE,
-}
-const player = {
   width: 32 * SCALE,
   height: 32 * SCALE,
 }
@@ -27,10 +23,6 @@ const endRoom = createLevel(4, 0)
 const hud = {
   width: level.width,
   height: level.height,
-  stats: {
-    width: level.width,
-    height: 7 * SCALE,
-  },
   digit: {
     width: 7 * SCALE,
     height: 7 * SCALE,
@@ -44,21 +36,17 @@ const hud = {
     height: 7 * SCALE,
   },
   inventory: {
-    width: 32 * SCALE,
-    height: 32 * SCALE,
     top: 153 * SCALE,
     left: 64 * SCALE,
     color: '#431300',
+    width: block.width,
+    height: block.height,
   },
   symbol: {
     left: 136 * SCALE,
-    width: 62 * SCALE,
-    height: 32 * SCALE,
   },
   life: {
     left: 240 * SCALE,
-    width: 32 * SCALE,
-    height: 32 * SCALE,
   },
 }
 
@@ -115,7 +103,6 @@ const config = {
   preview,
   screen,
   block,
-  player,
   levelEditor: false,
   hud,
   blueRooms,

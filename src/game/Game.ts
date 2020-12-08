@@ -15,6 +15,7 @@ export default class Game {
   map: MapTable
   darkRoomDone: boolean
   warheadsPlaced: number
+  paused: boolean
   level: {
     row: number
     col: number
@@ -29,6 +30,7 @@ export default class Game {
     this.element = document.createElement('div')
     this.element.id = 'game'
     this.darkRoomDone = false
+    this.paused = false
     this.warheadsPlaced = 0
   }
 
@@ -39,18 +41,20 @@ export default class Game {
     this.load()
   }
 
-  async load(): Promise<void> {
+  async firstLoad(): Promise<void> {
     await this.loadImages()
     this.blocks = this.getBlocksArray()
+    this.load()
+  }
+
+  async load(): Promise<void> {
     this.createGameCanvas()
     const loadButton = new LoadButton(this)
     document.body.append(loadButton.element)
 
     document.body.appendChild(this.element)
     this.player.resetIntervals()
-
     this.canvas.draw()
-    // TODO: ping
   }
 
   getBlocksArray(): HTMLImageElement[] {
@@ -229,5 +233,13 @@ export default class Game {
   end(): void {
     this.player.stats.score += config.gameplay.value.end
     console.log('CONGRATS MOTHAFUCKA')
+  }
+
+  pause(): void {
+    this.paused = true
+  }
+
+  resume(): void {
+    this.paused = false
   }
 }
