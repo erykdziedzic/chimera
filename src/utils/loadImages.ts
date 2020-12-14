@@ -44,6 +44,8 @@ import pauseColorsSrc from '../img/pause_colors.png'
 import menuBottomSrc from '../img/menu_bottom.png'
 import authorSrc from '../img/author.png'
 import bootSrc from '../img/boot.png'
+import hotSouthSrc from '../img/blocks/hot_south.png'
+import hotEastSrc from '../img/blocks/hot_east.png'
 
 import loadImage, { loadScaled } from './loadImage'
 import loadDigits from './loadDigits'
@@ -79,6 +81,8 @@ export type BlockImages = {
   readonly warhead: HTMLImageElement
   readonly computer: HTMLImageElement
   readonly doorWest: HTMLImageElement
+  readonly hotSouth: HTMLImageElement
+  readonly hotEast: HTMLImageElement
 }
 
 export const BlockColors = [
@@ -162,6 +166,8 @@ export enum Block {
   warhead,
   computer,
   doorWest,
+  hotSouth,
+  hotEast,
 }
 
 export default async function loadImages(): Promise<GameImages> {
@@ -190,6 +196,8 @@ export default async function loadImages(): Promise<GameImages> {
   const warhead = await loadBlockImage(warheadSrc)
   const computer = await loadBlockImage(computerSrc)
   const doorWest = await loadBlockImage(doorWestSrc)
+  const hotSouth = await loadBlockImage(hotSouthSrc)
+  const hotEast = await loadBlockImage(hotEastSrc)
 
   const block: BlockImages = {
     barrel,
@@ -217,6 +225,8 @@ export default async function loadImages(): Promise<GameImages> {
     warhead,
     computer,
     doorWest,
+    hotSouth,
+    hotEast,
   }
 
   const player = {

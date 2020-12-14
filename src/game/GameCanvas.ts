@@ -1,7 +1,20 @@
 import config, { SCALE } from '../config'
+import { Block } from '../utils/loadImages'
 import { Letters } from '../utils/loadLetters'
 import Game from './Game'
 import { Item } from './Player'
+
+function black(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value
+  descriptor.value = function (...args: any[]) {
+    const result = originalMethod.apply(this, ['black'])
+    return result
+  }
+}
 
 export default class GameCanvas {
   element: HTMLCanvasElement
@@ -10,9 +23,13 @@ export default class GameCanvas {
   timestamp: DOMHighResTimeStamp
   slideTextQueue: string[]
   slideTextBeginning: number
+  radiatorStep: number
+  radiatorStepFinished: boolean
 
   constructor(game: Game) {
     this.game = game
+    this.radiatorStep = 0
+    this.radiatorStepFinished = false
     this.element = document.createElement('canvas')
     this.element.width = config.screen.width
     this.element.height = config.screen.height
@@ -58,12 +75,13 @@ export default class GameCanvas {
     window.requestAnimationFrame(this.draw)
   }
 
-  resetFillStyle(): void {
+  @black
+  resetFillStyle(color = 'white'): void {
     if (this.game.level) {
       if (this.game.levelIsBlue()) this.ctx.fillStyle = '#0c048b'
-      else this.ctx.fillStyle = 'black'
+      else this.ctx.fillStyle = color
     } else {
-      this.ctx.fillStyle = 'black'
+      this.ctx.fillStyle = color
     }
   }
 
@@ -171,6 +189,41 @@ export default class GameCanvas {
     draw(digits[Number(str[2])], pos + 2)
     draw(digits[Number(str[3])], pos + 3)
     if (num >= 10000) draw(digits[Number(str[4])], pos + 4)
+  }
+
+  drawRadiator(j: number, i: number) {
+    let img
+    if (this.radiatorStep === 0) {
+      img = this.game.blocks[Block.barrel]
+      if (!this.radiatorStepFinished) {
+        setTimeout(() => {
+          this.radiatorStep = 1
+          this.radiatorStepFinished = false
+        }, 1000)
+        this.radiatorStepFinished = true
+      }
+    } else if (this.radiatorStep === 1) {
+      img = this.game.blocks[Block.hotSouth]
+      if (!this.radiatorStepFinished) {
+        setTimeout(() => {
+          this.radiatorStep = 2
+          this.radiatorStepFinished = false
+        }, 1000)
+        this.radiatorStepFinished = true
+      }
+    } else if (this.radiatorStep === 2) {
+      img = this.game.blocks[Block.hotEast]
+      if (!this.radiatorStepFinished) {
+        setTimeout(() => {
+          this.radiatorStep = 3
+          this.radiatorStepFinished = false
+        }, 1000)
+        this.radiatorStepFinished = true
+      }
+    } else if (this.radiatorStep === 3) {
+      img = this.game.blocks[Block.radiator]
+    }
+    this.drawSprite(img, j, i)
   }
 
   drawSprite(img: HTMLImageElement, dx: number, dy: number, dz = 0): void {

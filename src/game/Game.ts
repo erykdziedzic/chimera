@@ -98,7 +98,12 @@ export default class Game {
       )
     const drawBlock = (cell: number, i: number, j: number, level: number) => {
       if (cell >= 0 && cell !== Block.player && cell !== Block.end) {
-        this.canvas.drawSprite(this.blocks[cell], j - level, i - level)
+        const block = this.blocks[cell]
+        if (cell === Block.radiator) {
+          this.canvas.drawRadiator(j, i)
+        } else {
+          this.canvas.drawSprite(block, j - level, i - level)
+        }
         const onTop = this.level.level[1][i][j]
         if (onTop >= 0 && level === 0) drawBlock(onTop, i, j, 1)
       }
@@ -184,6 +189,8 @@ export default class Game {
 
   loadNextLevel(direction: Direction): void {
     const { row, col } = this.level
+    this.canvas.radiatorStepFinished = false
+    this.canvas.radiatorStep = 0
 
     switch (direction) {
       case Direction.east:

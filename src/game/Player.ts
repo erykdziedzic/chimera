@@ -1,6 +1,7 @@
 import config from '../config'
 import { Block } from '../utils/loadImages'
 import Game from './Game'
+import playerConfig from '../utils/playerConfig'
 import sounds, { AudioPlayer } from './sounds'
 
 export enum Direction {
@@ -35,6 +36,7 @@ export enum Item {
   torch,
 }
 
+@playerConfig
 export default class Player {
   position: Vector3
   direction: Direction
@@ -60,43 +62,14 @@ export default class Player {
   }
 
   constructor(game: Game) {
-    this.inventory = Item.empty // TODO: remove
-    const { water, food, score } = config.gameplay
-    this.stats = {
-      water,
-      food,
-      score,
-      waterInterval: undefined,
-      foodInterval: undefined,
-      lifeInterval: undefined,
-    }
     this.game = game
     this.position = {
       x: this.game.level.player.row,
       y: this.game.level.player.col,
-      z: 64,
+      z: 0,
     }
-    this.keyIsDown = false
-    this.direction = Direction.east
-    this.speed = 2
     this.imageSet = this.game.images.player.east
     this.animate = this.animate.bind(this)
-    this.animation = {
-      running: false,
-      began: 0,
-      image: 0,
-      start: {
-        x: 0,
-        y: 0,
-        z: 0,
-      },
-      end: {
-        x: 0,
-        y: 0,
-        z: 0,
-      },
-    }
-    this.scheduled = { axis: undefined, value: undefined }
     document.body.onkeydown = this.handleKeys()
     document.body.onkeyup = this.handleOnKeyUp()
   }

@@ -3,7 +3,17 @@ import LevelEditor from '../LevelEditor'
 import emptyElement from '../utils/emptyElement'
 import Row from './Row'
 
-export default class Table {
+interface TableInterface {
+  level: number
+  row: number
+  col: number
+  editor: LevelEditor
+  element: HTMLElement
+
+  render(): void
+}
+
+export default class Table implements TableInterface {
   level: number
   row: number
   col: number
