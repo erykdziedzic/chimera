@@ -18,6 +18,7 @@ export default class Game {
   paused: boolean
   menu: boolean
   booting: boolean
+  start: number
   level: {
     row: number
     col: number
@@ -63,6 +64,11 @@ export default class Game {
     document.body.appendChild(this.element)
     this.player.resetIntervals()
     this.canvas.draw()
+    this.canvas.slideTextQueue.push('chimera')
+    this.canvas.slideTextQueue.push(
+      'welcome to chimera, watch this space and good luck... '
+    )
+    console.log(this.canvas.slideTextQueue.length)
   }
 
   getBlocksArray(): HTMLImageElement[] {
@@ -252,6 +258,7 @@ export default class Game {
     document.body.onkeydown = () => {
       if (this.booting) return
       this.menu = false
+      this.start = Number(this.canvas.timestamp)
       this.load()
       document.body.onkeydown = this.player.handleKeys()
     }

@@ -14,19 +14,18 @@ require('./sounds/warhead_placement.mp3')
 export class AudioPlayer {
   src: string
   audio: HTMLAudioElement
+  started: boolean
   constructor(src: string) {
     this.src = src
     this.audio = new Audio(this.src)
     this.audio.volume = config.gameplay.audioVolume
+    this.started = false
   }
 
   play(): void {
-    // this.audio = new Audio(this.src)
-    if (this.audio.ended) {
-      this.audio.pause()
-      this.audio.currentTime = 0
-      this.audio.play()
-    }
+    this.audio.pause()
+    this.audio.currentTime = 0
+    this.audio.play()
   }
 }
 

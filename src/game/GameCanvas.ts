@@ -21,8 +21,7 @@ export default class GameCanvas {
     this.ctx.imageSmoothingEnabled = false
     this.clear()
     this.draw = this.draw.bind(this)
-    this.slideTextQueue = ['chimera']
-    this.slideTextBeginning = 0
+    this.slideTextQueue = []
   }
 
   clear(): void {
@@ -83,9 +82,13 @@ export default class GameCanvas {
     let posY = config.level.height + 8 * 3
     // text
     if (this.slideTextQueue.length > 0) {
-      this.slideTextBeginning = this.timestamp
       const text = this.slideTextQueue[0]
-      this.drawTextSlide(text, false, posY / SCALE, 1, 2)
+      if (!this.slideTextBeginning) {
+        this.slideTextBeginning = Number(this.timestamp)
+      }
+      this.drawSingleTextSlide(text, false, posY / SCALE, 1, 2)
+    } else {
+      this.drawTextCenter('chimera', posY, 1, 2)
     }
     // this.ctx.fillRect(0, posY, hud.width, 9 * 3)
     posY += 9 * 3
@@ -266,6 +269,34 @@ export default class GameCanvas {
     this.ctx.drawImage(author, 0, 46 * SCALE, author.width, author.height)
   }
 
+  drawTextCenter(text: string, top: number, scaleY = 2, scaleX = 2): void {
+    this.drawTextLine('chimera', screen.width / 2 / SCALE, top, scaleY, scaleX)
+  }
+
+  drawSingleTextSlide(
+    text: string,
+    reverse: boolean,
+    top: number,
+    scaleY = 2,
+    scaleX = 2
+  ): void {
+    const time = this.timestamp - this.slideTextBeginning
+    const { width } = config.screen
+    const speed = 5000 + text.length * 200
+    const letterSize = 7 * scaleX * SCALE
+    const add = text.length * letterSize
+    const delta = (time % speed) / speed
+    if (time / speed > 1) {
+      this.slideTextQueue.shift()
+      this.slideTextBeginning = undefined
+    }
+    const right = delta * (width + add)
+    const x = reverse ? right - add : width - right
+    this.drawTextLine(text, x, top * SCALE, scaleY, scaleX)
+    this.ctx.fillRect(0, top * SCALE, 40 * SCALE, letterSize)
+    this.ctx.fillRect(width - 40 * SCALE, top * SCALE, 40 * SCALE, letterSize)
+  }
+
   drawTextSlide(
     text: string,
     reverse: boolean,
@@ -273,11 +304,14 @@ export default class GameCanvas {
     scaleY = 2,
     scaleX = 2
   ): void {
+    let time
+    if (this.game.start) time = this.timestamp - this.game.start
+    else time = this.timestamp
     const { width } = config.screen
     const speed = 5000 + text.length * 200
     const letterSize = 7 * scaleX * SCALE
     const add = text.length * letterSize
-    const right = ((this.timestamp % speed) / speed) * (width + add)
+    const right = ((time % speed) / speed) * (width + add)
     const x = reverse ? right - add : width - right
     this.drawTextLine(text, x, top * SCALE, scaleY, scaleX)
     this.ctx.fillRect(0, top * SCALE, 40 * SCALE, letterSize)

@@ -75,7 +75,7 @@ const gameplay = {
   foodSpeedCarrying: 5,
   waterSpeed: 2,
   waterSpeedRadiator: 50,
-  audioVolume: 0.5,
+  audioVolume: 1,
   value: {
     drinkPickup: 15,
     drinkUse: 5,
@@ -108,7 +108,7 @@ const config = {
   blueRooms,
   darkRoom,
   endRoom,
-  debug: true,
+  debug: false,
 }
 
 export default config

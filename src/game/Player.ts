@@ -60,7 +60,7 @@ export default class Player {
   }
 
   constructor(game: Game) {
-    this.inventory = Item.warhead // TODO: remove
+    this.inventory = Item.empty // TODO: remove
     const { water, food, score } = config.gameplay
     this.stats = {
       water,
@@ -74,11 +74,11 @@ export default class Player {
     this.position = {
       x: this.game.level.player.row,
       y: this.game.level.player.col,
-      z: 0,
+      z: 64,
     }
     this.keyIsDown = false
     this.direction = Direction.east
-    this.speed = 10
+    this.speed = 2
     this.imageSet = this.game.images.player.east
     this.animate = this.animate.bind(this)
     this.animation = {
@@ -340,20 +340,36 @@ export default class Player {
         this.stats.score += config.gameplay.value.computerDestroy
         break
       case Block.electric:
-        if (this.inventory === Item.spanner) this.removeNextCell(collect)
-        else this.die()
+        if (this.inventory === Item.spanner) {
+          this.removeNextCell(collect)
+          this.game.canvas.slideTextQueue.push(
+            'you have eliminated an electric fence.'
+          )
+        } else this.die()
         this.stats.score += config.gameplay.value.electricDestroy
         break
       case Block.drink:
         this.removeNextCell(collect)
         if (this.inventory !== Item.empty) this.useWater()
-        else this.inventory = Item.drink
+        else {
+          this.game.canvas.slideTextQueue.push('this is a mug.')
+          this.game.canvas.slideTextQueue.push(
+            'your food is running out faster.'
+          )
+          this.inventory = Item.drink
+        }
         this.stats.score += config.gameplay.value.drinkPickup
         break
       case Block.bread:
         this.removeNextCell(collect)
         if (this.inventory !== Item.empty) this.useBread()
-        else this.inventory = Item.bread
+        else {
+          this.game.canvas.slideTextQueue.push('this is a loaf of bread.')
+          this.game.canvas.slideTextQueue.push(
+            'your food is running out faster.'
+          )
+          this.inventory = Item.bread
+        }
 
         this.stats.score += config.gameplay.value.breadPickup
         break
@@ -395,6 +411,9 @@ export default class Player {
         if (this.game.levelIsBlue()) this.die()
         this.removeNextCell(collectWarhead)
         this.inventory = Item.warhead
+        this.game.canvas.slideTextQueue
+          .push(`you have formed a warhead, take it to a blue room,\
+           but hurry... your food is running out faster`)
 
         this.stats.score += config.gameplay.value.hourglassDestroy
         break
@@ -420,6 +439,7 @@ export default class Player {
   }
 
   private useWater(): void {
+    this.game.canvas.slideTextQueue.push('the drink did you good.')
     this.stats.water += config.gameplay.drinkBonus
     if (this.inventory === Item.drink) {
       this.inventory = Item.empty
@@ -432,6 +452,7 @@ export default class Player {
 
   private useBread(): void {
     this.stats.food += config.gameplay.breadBonus
+    this.game.canvas.slideTextQueue.push('the bread raises your food reserves')
     if (this.inventory === Item.bread) {
       this.inventory = Item.empty
       this.stats.score += config.gameplay.value.breadUse
@@ -495,6 +516,9 @@ export default class Player {
     clearInterval(this.stats.foodInterval)
     clearInterval(this.stats.waterInterval)
     sounds.death.play()
+    this.game.canvas.slideTextQueue.push(
+      'due to an oversight or miscalculation on your part, you are now dead.'
+    )
     this.game.reload()
   }
 
