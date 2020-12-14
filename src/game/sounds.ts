@@ -22,9 +22,11 @@ export class AudioPlayer {
 
   play(): void {
     // this.audio = new Audio(this.src)
-    this.audio.pause()
-    this.audio.currentTime = 0
-    this.audio.play()
+    if (this.audio.ended) {
+      this.audio.pause()
+      this.audio.currentTime = 0
+      this.audio.play()
+    }
   }
 }
 

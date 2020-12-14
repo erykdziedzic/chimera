@@ -371,12 +371,10 @@ export default class Player {
       case Block.hourglass:
         if (this.inventory === Item.pyramid) this.removeNextCell(destroy)
         else this.die()
-        console.log(config.gameplay.value.hourglassDestroy)
 
         this.stats.score += config.gameplay.value.hourglassDestroy
         break
       case Block.doorWest:
-        console.log(this.inventory)
         if (this.inventory === Item.key) this.removeNextCell(destroy)
         else collect.play()
 
@@ -451,6 +449,12 @@ export default class Player {
   water(): void {
     this.stats.water -= 1
     if (this.stats.water === 0) this.die()
+  }
+
+  stopIntervals(): void {
+    clearInterval(this.stats.waterInterval)
+    clearInterval(this.stats.foodInterval)
+    clearInterval(this.stats.lifeInterval)
   }
 
   resetIntervals(): void {

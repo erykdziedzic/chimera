@@ -3,8 +3,8 @@ import loadImages, { Block, BlockImages, GameImages } from '../utils/loadImages'
 import Player, { Direction } from './Player'
 import { MapTable } from '../editor/emptyMap'
 import LoadButton from './LoadButton'
-import sounds from './sounds'
 import config from '../config'
+import { loadScaled } from '../utils/loadImage'
 
 export default class Game {
   canvas: GameCanvas
@@ -16,6 +16,8 @@ export default class Game {
   darkRoomDone: boolean
   warheadsPlaced: number
   paused: boolean
+  menu: boolean
+  booting: boolean
   level: {
     row: number
     col: number
@@ -32,6 +34,7 @@ export default class Game {
     this.darkRoomDone = false
     this.paused = false
     this.warheadsPlaced = 0
+    this.booting = true
   }
 
   async reload(): Promise<void> {
@@ -42,13 +45,18 @@ export default class Game {
   }
 
   async firstLoad(): Promise<void> {
+    setTimeout(() => {
+      this.booting = false
+    }, 2000)
     await this.loadImages()
     this.blocks = this.getBlocksArray()
-    this.load()
+    this.createGameCanvas()
+    this.showMenu()
+    this.canvas.draw()
+    document.body.appendChild(this.element)
   }
 
   async load(): Promise<void> {
-    this.createGameCanvas()
     const loadButton = new LoadButton(this)
     document.body.append(loadButton.element)
 
@@ -208,6 +216,7 @@ export default class Game {
   }
 
   levelIsBlue(): boolean {
+    if (!this.level) return false
     const { row, col } = this.level
     const toFind = JSON.stringify({ row, col })
     if (config.blueRooms.map((l) => JSON.stringify(l)).includes(toFind))
@@ -216,6 +225,7 @@ export default class Game {
   }
 
   levelIsDark(): boolean {
+    if (!this.level) return false
     const { row, col } = this.level
     const toFind = JSON.stringify({ row, col })
     if (this.darkRoomDone) return false
@@ -233,13 +243,27 @@ export default class Game {
   end(): void {
     this.player.stats.score += config.gameplay.value.end
     console.log('CONGRATS MOTHAFUCKA')
+    // TODO: end game
+  }
+
+  showMenu(): void {
+    this.menu = true
+    if (this.player) this.player.stopIntervals()
+    document.body.onkeydown = () => {
+      if (this.booting) return
+      this.menu = false
+      this.load()
+      document.body.onkeydown = this.player.handleKeys()
+    }
   }
 
   pause(): void {
     this.paused = true
+    this.player.stopIntervals()
   }
 
   resume(): void {
     this.paused = false
+    this.player.resetIntervals()
   }
 }

@@ -1,4 +1,5 @@
 import config, { SCALE } from '../config'
+import { Letters } from '../utils/loadLetters'
 import Game from './Game'
 import { Item } from './Player'
 
@@ -6,6 +7,7 @@ export default class GameCanvas {
   element: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
   game: Game
+  timestamp: DOMHighResTimeStamp
 
   constructor(game: Game) {
     this.game = game
@@ -25,17 +27,31 @@ export default class GameCanvas {
     this.ctx.fillRect(0, 0, this.element.width, this.element.height)
   }
 
-  draw(): void {
+  draw(timestamp?: DOMHighResTimeStamp): void {
+    this.timestamp = timestamp
     this.ctx.save()
     this.clear()
     // const rotate = Math.floor(Math.random() * 360)
     const rotate = 90
-    this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
-    this.game.createField()
+    if (this.game.level) this.game.createField()
     this.ctx.filter = 'none'
     if (this.game.levelIsDark()) this.clear()
-    this.drawHUD()
+    if (this.game.level) this.drawHUD()
     if (this.game.paused) this.drawPauseMenu()
+    if (this.game.menu) this.drawMenu()
+    if (this.game.menu) this.drawTextSlide('chimera', true, 32)
+    const description = `chimera, the ultimate test of logic and quick thinking.\
+     this game will stretch your thinking power to the limit, it will question\
+     your superiority over computer games. this game will not be solved quicky,\
+     it can be completed, but at the end of the day, it will be your sanity thiat\
+     emerges the loser. these are not wild claims, this game will do things that\
+     no other game has yet done. if you complete it within a month, you are either\
+     einstein... or a hacker. i would like to wish you luck,\
+     but luck will not help you in chimera.....`
+    if (this.game.menu) this.drawTextSlide(description, false, 112)
+    if (this.game.booting) this.drawHUDImage(this.game.images.boot, 0, 0)
+    this.ctx.filter = `sepia(100%) hue-rotate(${rotate}deg) saturate(200%) contrast(150%)`
+
     window.requestAnimationFrame(this.draw)
   }
 
@@ -185,8 +201,110 @@ export default class GameCanvas {
 
   drawPauseMenu(): void {
     this.clear()
-    const { background, text } = this.game.images.pause
+    const { background, text, colors } = this.game.images.pause
     this.ctx.drawImage(background, 0, 0, background.width, background.height)
-    this.ctx.drawImage(text, 0, 0, text.width, text.height)
+    const speed = 2000
+    const drawColorColumn = (left: number) => {
+      const top = ((this.timestamp % speed) / speed) * background.height
+      this.ctx.drawImage(colors, left, top, colors.width, colors.height)
+      const top2 =
+        ((this.timestamp % speed) / speed) * background.height -
+        background.height
+      this.ctx.drawImage(colors, left, top2, colors.width, colors.height)
+    }
+    drawColorColumn(32 * SCALE)
+    drawColorColumn(128 * SCALE)
+    drawColorColumn(224 * SCALE)
+
+    this.ctx.drawImage(text, 24 * SCALE, 112 * SCALE, text.width, text.height)
+  }
+
+  drawMenu(): void {
+    this.clear()
+    const { background, colors } = this.game.images.pause
+    const { bottom, author } = this.game.images.menu
+    const speed = 5000
+    const drawColorLine = (topCanvas: number) => {
+      const top = (((this.timestamp % speed) / speed) * colors.height) / SCALE
+      this.ctx.drawImage(
+        colors,
+        0,
+        top,
+        colors.width,
+        32,
+        0,
+        topCanvas * SCALE,
+        background.width * SCALE,
+        32 * SCALE
+      )
+      const top2 =
+        (((this.timestamp % speed) / speed) * colors.height) / SCALE - 32
+      this.ctx.drawImage(
+        colors,
+        0,
+        top2,
+        colors.width,
+        32,
+        0,
+        topCanvas * SCALE,
+        background.width * SCALE,
+        32 * SCALE
+      )
+    }
+    drawColorLine(69)
+    drawColorLine(131)
+
+    this.ctx.drawImage(bottom, 0, 162 * SCALE, bottom.width, bottom.height)
+    this.ctx.drawImage(author, 0, 46 * SCALE, author.width, author.height)
+  }
+
+  drawTextSlide(text: string, reverse: boolean, top: number, scale = 2): void {
+    const { width } = config.screen
+    const speed = 5000 + text.length * 200
+    const letterSize = 7 * scale * SCALE
+    const add = text.length * letterSize
+    const right = ((this.timestamp % speed) / speed) * (width + add)
+    const x = reverse ? right - add : width - right
+    this.drawTextLine(text, x, top * SCALE, scale)
+    this.ctx.fillRect(0, top * SCALE, 40 * SCALE, letterSize)
+    this.ctx.fillRect(width - 40 * SCALE, top * SCALE, 40 * SCALE, letterSize)
+  }
+
+  drawTextLine(text: string, left: number, top: number, scale = 1): void {
+    const letters = text.toLowerCase().split('')
+    letters.forEach((letter, index) =>
+      this.drawLetter(letter, left, top, index, scale)
+    )
+  }
+
+  drawLetter(
+    letter: string,
+    left: number,
+    top: number,
+    index: number,
+    scale: number
+  ): void {
+    const { letters } = this.game.images
+    const width = 7
+    let char
+    switch (letter) {
+      case ',':
+        char = 'comma'
+        break
+      case '.':
+        char = 'dot'
+        break
+      default:
+        char = letter
+    }
+    const img = letters[<keyof Letters>char]
+    if (img)
+      this.ctx.drawImage(
+        img,
+        left + index * (width + 1) * SCALE * scale,
+        top,
+        img.width * scale,
+        img.height * scale
+      )
   }
 }

@@ -40,9 +40,14 @@ import symbolSrc from '../img/symbol.png'
 import lifeSrc from '../img/life.png'
 import pauseBGSrc from '../img/pause_bg.png'
 import pauseTextSrc from '../img/pause_text.png'
+import pauseColorsSrc from '../img/pause_colors.png'
+import menuBottomSrc from '../img/menu_bottom.png'
+import authorSrc from '../img/author.png'
+import bootSrc from '../img/boot.png'
 
 import loadImage, { loadScaled } from './loadImage'
 import loadDigits from './loadDigits'
+import loadLetters, { Letters } from './loadLetters'
 
 async function loadBlockImage(src: string) {
   return await loadImage(src, config.block.width, config.block.height)
@@ -121,7 +126,14 @@ export type GameImages = {
   pause: {
     background: HTMLImageElement
     text: HTMLImageElement
+    colors: HTMLImageElement
   }
+  menu: {
+    bottom: HTMLImageElement
+    author: HTMLImageElement
+  }
+  letters: Letters
+  boot: HTMLImageElement
 }
 
 export enum Block {
@@ -243,7 +255,14 @@ export default async function loadImages(): Promise<GameImages> {
     pause: {
       background: await loadScaled(pauseBGSrc),
       text: await loadScaled(pauseTextSrc),
+      colors: await loadScaled(pauseColorsSrc),
     },
+    menu: {
+      bottom: await loadScaled(menuBottomSrc),
+      author: await loadScaled(authorSrc),
+    },
+    letters: await loadLetters(),
+    boot: await loadScaled(bootSrc),
   }
 
   return gameImages
