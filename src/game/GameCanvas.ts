@@ -8,6 +8,8 @@ export default class GameCanvas {
   ctx: CanvasRenderingContext2D
   game: Game
   timestamp: DOMHighResTimeStamp
+  slideTextQueue: string[]
+  slideTextBeginning: number
 
   constructor(game: Game) {
     this.game = game
@@ -19,6 +21,8 @@ export default class GameCanvas {
     this.ctx.imageSmoothingEnabled = false
     this.clear()
     this.draw = this.draw.bind(this)
+    this.slideTextQueue = ['chimera']
+    this.slideTextBeginning = 0
   }
 
   clear(): void {
@@ -78,8 +82,12 @@ export default class GameCanvas {
     // margin
     let posY = config.level.height + 8 * 3
     // text
-    this.ctx.fillStyle = 'red'
-    this.ctx.fillRect(0, posY, hud.width, 9 * 3)
+    if (this.slideTextQueue.length > 0) {
+      this.slideTextBeginning = this.timestamp
+      const text = this.slideTextQueue[0]
+      this.drawTextSlide(text, false, posY / SCALE, 1, 2)
+    }
+    // this.ctx.fillRect(0, posY, hud.width, 9 * 3)
     posY += 9 * 3
     // margin
     posY += 8 * 3
@@ -258,22 +266,34 @@ export default class GameCanvas {
     this.ctx.drawImage(author, 0, 46 * SCALE, author.width, author.height)
   }
 
-  drawTextSlide(text: string, reverse: boolean, top: number, scale = 2): void {
+  drawTextSlide(
+    text: string,
+    reverse: boolean,
+    top: number,
+    scaleY = 2,
+    scaleX = 2
+  ): void {
     const { width } = config.screen
     const speed = 5000 + text.length * 200
-    const letterSize = 7 * scale * SCALE
+    const letterSize = 7 * scaleX * SCALE
     const add = text.length * letterSize
     const right = ((this.timestamp % speed) / speed) * (width + add)
     const x = reverse ? right - add : width - right
-    this.drawTextLine(text, x, top * SCALE, scale)
+    this.drawTextLine(text, x, top * SCALE, scaleY, scaleX)
     this.ctx.fillRect(0, top * SCALE, 40 * SCALE, letterSize)
     this.ctx.fillRect(width - 40 * SCALE, top * SCALE, 40 * SCALE, letterSize)
   }
 
-  drawTextLine(text: string, left: number, top: number, scale = 1): void {
+  drawTextLine(
+    text: string,
+    left: number,
+    top: number,
+    scaleY: number,
+    scaleX: number
+  ): void {
     const letters = text.toLowerCase().split('')
     letters.forEach((letter, index) =>
-      this.drawLetter(letter, left, top, index, scale)
+      this.drawLetter(letter, left, top, index, scaleY, scaleX)
     )
   }
 
@@ -282,7 +302,8 @@ export default class GameCanvas {
     left: number,
     top: number,
     index: number,
-    scale: number
+    scaleY: number,
+    scaleX: number
   ): void {
     const { letters } = this.game.images
     const width = 7
@@ -301,10 +322,10 @@ export default class GameCanvas {
     if (img)
       this.ctx.drawImage(
         img,
-        left + index * (width + 1) * SCALE * scale,
+        left + index * (width + 1) * SCALE * scaleX,
         top,
-        img.width * scale,
-        img.height * scale
+        img.width * scaleX,
+        img.height * scaleY
       )
   }
 }

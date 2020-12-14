@@ -202,7 +202,7 @@ export default class Player {
     sounds.walk.play()
     if (this.animation.running) {
       this.scheduled = { axis, value }
-    } // TODO if moving
+    }
     this.prepareAnimation()
     this.animation.end[axis] += value
     window.requestAnimationFrame(this.animate)
@@ -218,7 +218,7 @@ export default class Player {
   rotateRight(): void {
     if (this.direction === Direction.north) this.direction = Direction.east
     else this.direction = this.direction + 1
-    if (this.animation.running) return // TODO if moving
+    if (this.animation.running) return
     this.setDirectionImage()
     sounds.turn.play()
   }
@@ -226,7 +226,7 @@ export default class Player {
   rotateLeft(): void {
     if (this.direction === Direction.east) this.direction = Direction.north
     else this.direction = this.direction - 1
-    if (this.animation.running) return // TODO if moving
+    if (this.animation.running) return
     this.setDirectionImage()
     sounds.turn.play()
   }
